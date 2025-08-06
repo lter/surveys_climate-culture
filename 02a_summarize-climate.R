@@ -89,16 +89,6 @@ for(scope in c("Network", "Site-Specific")){
     clim_v2 <- dplyr::filter(clim_v2, site != "LNO" & !is.na(site))
   }
   
-  # Calculate climate score means
-  score_list[[paste0(scope, "_climate")]] <- clim_v2 %>% 
-    dplyr::group_by(site) %>% 
-    dplyr::summarize(climate_score_mean = mean(site_climate_score, na.rm = T),
-                     .groups = "keep") %>% 
-    dplyr::ungroup()
-  
-  # Check structure
-  # dplyr::glimpse(score_list[[paste0(scope, "_climate")]])
-  
   # Summarize activity counts
   result_list[[paste0(scope, "_activity")]] <- clim_v2 %>% 
     # Pare down to only needed columns
@@ -136,15 +126,29 @@ for(scope in c("Network", "Site-Specific")){
   # Check structure
   # dplyr::glimpse(result_list[[paste0(scope, "_activity")]])
   
+  # Calculate climate score means
+  score_list[[paste0(scope, "_climate")]] <- clim_v2 %>% 
+    dplyr::group_by(site) %>% 
+    dplyr::summarize(climate_score_mean = mean(site_climate_score, na.rm = T),
+                     .groups = "keep") %>% 
+    dplyr::ungroup()
+  
+  # Check structure
+  # dplyr::glimpse(score_list[[paste0(scope, "_climate")]])
+  
   # Empty list for storing question-specific summaries
-  q_list <- purrr::map(.x = questions,
+  q_list <- purrr::map(.x = c(questions, "site_climate_score"),
                        .f = ~ calc_percents(df = clim_v2, q = .x))
   
   # Check that out
   dplyr::glimpse(q_list[c(1:3)])
   
   # Unlist question-specific dataframe and add to higher-level list
-  result_list[[paste0(scope, "_qs")]] <- purrr::list_rbind(x = q_list)
+  result_list[[paste0(scope, "_qs")]] <- q_list %>% 
+    purrr::map(.x = ., 
+               .f = ~ dplyr::mutate(.data = .x,
+                                    answer = as.character(answer))) %>% 
+    purrr::list_rbind(x = .)
   
 } # Close loop
 
@@ -171,16 +175,65 @@ write.csv(x = result_v99, row.names = F, na = '',
           file = file.path("data", "02a_summarized-climate.csv"))
 
 ## ----------------------------- ##
+# Process Respondent Climate Scores ----
+## ----------------------------- ##
+
+# Get a dataframe from what our loop returns
+score_v1 <- purrr::list_rbind(x = score_list)
+
+# Check structure
+dplyr::glimpse(score_v1)
+
+# Wrangle this to identify 80th percentile
+score_v2 <- score_v1 %>% 
+  dplyr::filter(site != "Network") %>%   
+  # Identify 80th percentile
+  dplyr::mutate(
+    climate_score_perc80 = as.numeric(quantile(x = climate_score_mean, probs = 0.8))) %>% 
+  # Get ambiguous site column for this variable
+  dplyr::mutate(climate_score_site_ambig = ifelse(climate_score_mean < climate_score_perc80,
+                                                  yes = "Other", no = site))
+
+# Check structure
+dplyr::glimpse(score_v2)
+
+# Process network-level result
+score_net <- score_v1 %>% 
+  dplyr::filter(site == "Network")
+
+# Check structure
+dplyr::glimpse(score_net)
+
+# Combine network & site-specific results
+score_v3 <- dplyr::bind_rows(score_net, score_v2)
+
+# Check structure
+dplyr::glimpse(score_v3)
+
+## ----------------------------- ##
 # Calculate Composites ----
 ## ----------------------------- ##
 
 # Process data to prepare to get composite scores
 comp_v1 <- result_v1 %>% 
   # Streamline data to only questions included in the composite scores
-  dplyr::filter(question %in% c("belonging_others", "belonging_self", "general_productivity",
-                                "general_wellbeing", "information_resources_safety",
-                                "physical_safety", "self_advocacy")) %>% 
-  dplyr::filter(answer %in% c("Neutral", "Disagree", "Strongly disagree") != T) %>% 
+  dplyr::filter(question %in% c(
+    ## Composite climate
+    "general_productivity", "general_wellbeing", "site_climate_score",
+    ## Composite belonging
+    "belonging_self", "belonging_others",
+    ## Composite safety (general)
+    "physical_safety", "information_resources_safety", "self_advocacy",
+    ## Composite safety (social)
+    
+    ## Composite trust
+    
+    ## Composite pro-social
+    "frequency_courtesy", "frequency_assistance", "frequency_praise",
+    "frequency_interest", "frequency_public_recognition")) %>% 
+  dplyr::filter(answer %in% c("Agree", "Strongly agree",
+                              "Frequently", "Very frequently",
+                              as.character(8:10))) %>% 
   # Sum within questions across answers
   dplyr::group_by(site, question) %>% 
   dplyr::summarize(perc_total = sum(percent, na.rm = T),
@@ -190,19 +243,23 @@ comp_v1 <- result_v1 %>%
 # Check structure
 dplyr::glimpse(comp_v1)
 
-
-sort(unique(comp_v1$question))
-
 # Actually calculate composites
 comp_v2 <- comp_v1 %>% 
   # Identify composites
   dplyr::mutate(composite = dplyr::case_when(
-    question %in% c("general_productivity") ~ "composite_climate",
+    ## Composite climate
+    question %in% c("general_productivity", "site_climate_score", "general_wellbeing") ~ "composite_climate",
+    ## Composite belonging
     question %in% c("belonging_self", "belonging_others") ~ "composite_belonging",
-    question %in% c("self_advocacy") ~ "composite_civility",
-    question %in% c("physical_safety") ~ "composite_safety_general",
-    question %in% c("general_wellbeing") ~ "composite_safety_social",
-    question %in% c("information_resources_safety") ~ "composite_inst_knowledge",
+    ## Composite safety (general)
+    question %in% c("physical_safety", "information_resources_safety", "self_advocacy") ~ "composite_safety_general",
+    ## Composite safety (social)
+    
+    ## Composite trust
+    
+    ## Composite pro-social
+    question %in% c("frequency_courtesy", "frequency_assistance", "frequency_praise",
+                    "frequency_interest", "frequency_public_recognition") ~ "composite_prosocial",
     T ~ NA)) %>% 
   dplyr::filter(!is.na(composite)) %>% 
   # Actually calculate composite scores
@@ -229,36 +286,55 @@ comp_v3 <- comp_v2 %>%
 # Check structure
 dplyr::glimpse(comp_v3)
 
+# Tweak data shape before exporting
+comp_v4 <- comp_v3 %>% 
+  # Pivot longer
+  dplyr::mutate(dplyr::across(.cols = dplyr::everything(),
+                              .fns = ~ as.character(.))) %>% 
+  dplyr::relocate(composite, .after = site) %>% 
+  tidyr::pivot_longer(cols = -site:-composite) %>% 
+  # Repair names
+  dplyr::mutate(names = paste0(composite, "_", name)) %>% 
+  # Pare down columns
+  dplyr::select(site, names, value) %>% 
+  # Reshape to wide format
+  tidyr::pivot_wider(names_from = names, values_from = value) %>% 
+  # Make number columns back into numbers
+  dplyr::mutate(dplyr::across(.cols = dplyr::ends_with(c("_score", "_perc80")),
+                              .fns = ~ as.numeric(.)))
+
+# Check structure
+dplyr::glimpse(comp_v4)
+
+# Parse the network-level composites
+comp_net <- comp_v2 %>% 
+  dplyr::filter(site == "Network") %>% 
+  dplyr::mutate(composite = paste0(composite, "_score")) %>% 
+  tidyr::pivot_wider(names_from = composite, values_from = score)
+
+# Check structure
+dplyr::glimpse(comp_net)
+
+# Get a final object
+comp_v5 <- comp_v4 %>% 
+  # Combine network level composite scores
+  dplyr::bind_rows(comp_net) %>% 
+  # And attach the respondents mean climate scores too
+  dplyr::left_join(score_v3, by = "site") %>% 
+  dplyr::relocate(dplyr::starts_with("climate_score"), .after = site)
+
+# Check structure
+dplyr::glimpse(comp_v5)
+
 ## ----------------------------- ##
 # Export (Composite Scores) ----
 ## ----------------------------- ##
 
 # Make a final object
-comp_v99 <- comp_v3
+comp_v99 <- comp_v5
 
 # Export locally
 write.csv(x = comp_v99, row.names = F, na = '',
           file = file.path("data", "02a_composite-scores.csv"))
-
-## ----------------------------- ##
-# Process Respondent Climate Score ----
-## ----------------------------- ##
-
-# Get a score dataframe for the original climate score too
-score_v1 <- purrr::list_rbind(x = score_list)
-
-# Check structure
-dplyr::glimpse(score_v1)
-
-## ----------------------------- ##
-# Export (Respondent Climate Scores) ----
-## ----------------------------- ##
-
-# Make a final object
-score_v99 <- score_v1
-
-# Export locally
-write.csv(x = score_v99, row.names = F, na = '',
-          file = file.path("data", "02a_climate-score.csv"))
 
 # End ----
