@@ -46,8 +46,8 @@ clim_v2 <- clim_v1 %>%
   dplyr::select(-dplyr::starts_with(c("gce_", "kbs_", "luq_"))) %>% 
   # Original respondent activities column in superseded
   dplyr::select(-respondent_activities) %>% 
-  # Remove 'source' and responder ID columns (will aggregate across them anyway)
-  dplyr::select(-source, response_id)
+  # Remove 'source' column (no longer relevant)
+  dplyr::select(-source)
 
 # What was lost?
 supportR::diff_check(old = names(clim_v1), new = names(clim_v2))
@@ -55,11 +55,23 @@ supportR::diff_check(old = names(clim_v1), new = names(clim_v2))
 # Check structure
 dplyr::glimpse(clim_v2)
 
+## ----------------------------- ##
+# Summarize Data ----
+## ----------------------------- ##
+
+# Sum activity counts
+sub_activity <- clim_v2 %>% 
+  dplyr::select(dplyr::starts_with("activity_")) %>% 
+  tidyr::pivot_longer(cols = dplyr::starts_with("activity_")) %>% 
+  # Sum within activity types
+  dplyr::group_by(name) %>% 
+  dplyr::summarize(total = sum(value, na.rm = T),
+                   .groups = "keep") %>% 
+  dplyr::ungroup()
 
 
-
-
-
+# Check structure
+dplyr::glimpse(sub_activity)
 
 
 
