@@ -38,9 +38,11 @@ calc_percents <- function(df = NULL, q = NULL){
     # Calculate percents
     dplyr::mutate(percent = (ct / total) * 100) %>% 
     # Generate more specific question column
-    dplyr::mutate(question = paste0(q, "_", tolower(!!rlang::ensym(q)), "_percent")) %>% 
+    dplyr::mutate(answer = paste0(q, "_", tolower(!!rlang::ensym(q)), "_percent")) %>% 
+    # Make better question column
+    dplyr::mutate(question = q) %>% 
     # Reorder/pare down
-    dplyr::select(site, question, total, ct, percent)
+    dplyr::select(site, question, answer, total, ct, percent)
     
   # Return that object
   return(df_v2) }
