@@ -45,7 +45,9 @@ clim_v2 <- clim_v1 %>%
   # Remove site-specific columns too
   dplyr::select(-dplyr::starts_with(c("gce_", "kbs_", "luq_"))) %>% 
   # Original respondent activities column in superseded
-  dplyr::select(-respondent_activities)
+  dplyr::select(-respondent_activities) %>% 
+  # Remove 'source' and responder ID columns (will aggregate across them anyway)
+  dplyr::select(-source, response_id)
 
 # What was lost?
 supportR::diff_check(old = names(clim_v1), new = names(clim_v2))
