@@ -19,12 +19,16 @@ librarian::shelf(tidyverse, supportR)
 # Clear environment
 rm(list = ls()); gc()
 
+# Load custom function(s)
+purrr::walk(.x = dir(path = file.path("tools")),
+            .f = ~ source(file.path("tools", .x)))
+
 ## ----------------------------- ##
 # Read in Data ----
 ## ----------------------------- ##
 
 # Read in data
-clim_v1 <- read.csv(file = file.path("data", "01_processed-climate.csv")) %>% 
+clim_v1 <- read.csv(file = file.path("data", "01a_processed-climate.csv")) %>% 
   # Make empty cells into real NAs
   dplyr::mutate(dplyr::across(.cols = dplyr::everything(),
                               .fns = ~ ifelse(nchar(.) == 0,
@@ -34,58 +38,126 @@ clim_v1 <- read.csv(file = file.path("data", "01_processed-climate.csv")) %>%
 dplyr::glimpse(clim_v1)
 
 ## ----------------------------- ##
-# Remove Unwanted Columns ----
+# Identify Core Questions ----
 ## ----------------------------- ##
 
-# Remove unwanted columns
-clim_v2 <- clim_v1 %>% 
-  # Don't want free text columns at this point
-  dplyr::select(-dplyr::ends_with(c("_other", "_text"))) %>% 
-  dplyr::select(-dplyr::starts_with(c("open_question_"))) %>% 
-  # Remove site-specific columns too
-  dplyr::select(-dplyr::starts_with(c("gce_", "kbs_", "luq_"))) %>% 
-  # Original respondent activities column in superseded
-  dplyr::select(-respondent_activities) %>% 
-  # Remove 'source' column (no longer relevant)
-  dplyr::select(-source)
+# Define columns we're interested in summarizing (i.e., not free text)
+## We summarize site climate score and activity types without needing to specify that here
+questions <- c("fieldwork_duration", "contact_time", 
+               "lter_role", "years_with_lter", 
+               "general_productivity", "general_wellbeing",
+               "belonging_self", "belonging_others", "physical_safety", 
+               "information_resources_safety", "self_advocacy",
+               "gender_harassment", "field_safety_plan",
+               "accomodations", "reporting", 
+               "internal_antagonistic_interactions",
+               "external_antagonistic_interactions",
+               "antagonistic_interactions_stage",
+               "frequency_courtesy", "frequency_assistance",
+               "frequency_praise", "frequency_interest", 
+               "frequency_public_recognition", 
+               "gender_identity", "marginalized_identity")
 
-# What was lost?
-supportR::diff_check(old = names(clim_v1), new = names(clim_v2))
-
-# Check structure
-dplyr::glimpse(clim_v2)
+# What's missing?
+supportR::diff_check(old = names(clim_v1), new = questions)
 
 ## ----------------------------- ##
 # Summarize Data ----
 ## ----------------------------- ##
 
-# Sum activity counts
-sub_activity <- clim_v2 %>% 
-  dplyr::select(dplyr::starts_with("activity_")) %>% 
-  tidyr::pivot_longer(cols = dplyr::starts_with("activity_")) %>% 
-  # Sum within activity types
-  dplyr::group_by(name) %>% 
-  dplyr::summarize(total = sum(value, na.rm = T),
-                   .groups = "keep") %>% 
-  dplyr::ungroup()
+# Empty lists for storing results
+result_list <- list()
+score_list <- list()
 
+# Calculate at network level and within sites
+for(scope in c("Network", "Site-Specific")){
+  ## scope <- "Network"
+  
+  # Processing message
+  message("Summarizing data for ", scope)
+  
+  # Duplicate data
+  clim_v2 <- clim_v1
+  
+  # Coerce site to "Network" for all responses to use same grouping variables within/across sites
+  if(scope == "Network"){
+    clim_v2$site <- "Network"
+  }
+  
+  # Remove LNO & missing sites from site-specific aggregation (too few responses)
+  if(scope != "Network"){
+    clim_v2 <- dplyr::filter(clim_v2, site != "LNO" & !is.na(site))
+  }
+  
+  # Calculate climate score means
+  score_list[[paste0(scope, "_climate")]] <- clim_v2 %>% 
+    dplyr::group_by(site) %>% 
+    dplyr::summarize(climate_score_mean = mean(site_climate_score, na.rm = T),
+                     .groups = "keep") %>% 
+    dplyr::ungroup()
+  
+  # Check structure
+  # dplyr::glimpse(score_list[[paste0(scope, "_climate")]])
+  
+  # Summarize activity counts
+  result_list[[paste0(scope, "_activity")]] <- clim_v2 %>% 
+    # Pare down to only needed columns
+    dplyr::select(site, dplyr::starts_with("activity_")) %>%
+    dplyr::select(-activity_other) %>% 
+    # Reshape to long format
+    tidyr::pivot_longer(cols = dplyr::starts_with("activity_"),
+                        names_to = "question",
+                        values_to = "answer") %>% 
+    # Sum within activity types
+    dplyr::group_by(site, question) %>% 
+    dplyr::summarize(total = dplyr::n(),
+                     ct = sum(answer, na.rm = T),
+                     percent = (ct / total) * 100,
+                     .groups = "keep") %>% 
+    dplyr::ungroup() %>% 
+    # Expand 'names'
+    dplyr::mutate(answer = paste0(question, "_percent"), .after = question)
+  
+  # Check structure
+  # dplyr::glimpse(result_list[[paste0(scope, "_activity")]])
+  
+  # Empty list for storing question-specific summaries
+  q_list <- purrr::map(.x = questions,
+                       .f = ~ calc_percents(df = clim_v2, q = .x))
+  
+  # Check that out
+  # dplyr::glimpse(q_list[c(1:3)])
+  
+  # Unlist question-specific dataframe and add to higher-level list
+  result_list[[paste0(scope, "_qs")]] <- purrr::list_rbind(x = q_list)
+  
+} # Close loop
+
+
+# Process that output
+result_df <- result_list %>% 
+  # Unlist that list
+  purrr::list_rbind(x = .) %>% 
+  # Attach climate scores
+  dplyr::left_join(y = purrr::list_rbind(x = score_list),
+                   by = "site")
 
 # Check structure
-dplyr::glimpse(sub_activity)
+dplyr::glimpse(result_df)
+##  view(result_df)
 
-
-
-
+# All sites included?
+sort(unique(result_df$site))
 
 ## ----------------------------- ##
 # Export ----
 ## ----------------------------- ##
 
 # Make a final object
-clim_v99 <- clim_v2
+result_v99 <- result_df
 
 # Export locally
-write.csv(x = clim_v99, row.names = F, na = '',
-          file = file.path("data", "01_summarized-climate.csv"))
+write.csv(x = result_v99, row.names = F, na = '',
+          file = file.path("data", "02a_summarized-climate.csv"))
 
 # End ----
