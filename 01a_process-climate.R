@@ -147,11 +147,53 @@ clim_v4 %>%
 dplyr::glimpse(clim_v4)
 
 ## ----------------------------- ##
+# Check/Repair Sites ----
+## ----------------------------- ##
+
+# What sites are in the data?
+sort(unique(clim_v4$site))
+
+# Want to extract site abbreviations (for graphs)
+clim_v5 <- clim_v4 %>% 
+  # Resolve "Other" entry (just one response had this)
+  dplyr::mutate(site = ifelse(site == "Other",
+                              # Response in 'site other' column: "pie and gce"
+                              yes = "Plum Island Ecosystems LTER (PIE)", 
+                              no = site)) %>% 
+  # Split into separate columns by parentheses
+  tidyr::separate_wider_delim(cols = site, delim = " (",
+                              names = c("site_name", "site")) %>% 
+  # Remove trailing parentheses left over
+  dplyr::mutate(site = gsub(pattern = "\\)", replacement = "", x = site)) %>% 
+  # Relocate to start of data
+  dplyr::relocate(site, site_name, .before = response_id)
+
+# What sites are left?
+sort(unique(clim_v5$site))
+
+# Check structure
+dplyr::glimpse(clim_v5)
+
+## ----------------------------- ##
+# Fix Categorical Missing Values ----
+## ----------------------------- ##
+
+# Need to fill missing values in some columns
+clim_v6 <- clim_v5 %>% 
+  # Antagonistic interactions
+  dplyr::mutate(antagonistic_interactions_stage = ifelse(is.na(antagonistic_interactions_stage),
+                                                         yes = "No antagonistic interactions",
+                                                         no = antagonistic_interactions_stage))
+
+# Check structure
+dplyr::glimpse(clim_v6)
+
+## ----------------------------- ##
 # Export ----
 ## ----------------------------- ##
 
 # Make a final object
-clim_v99 <- clim_v4
+clim_v99 <- clim_v6
 
 # Export locally
 write.csv(x = clim_v99, row.names = F, na = '',

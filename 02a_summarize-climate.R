@@ -53,45 +53,6 @@ supportR::diff_check(old = names(clim_v1), new = names(clim_v2))
 # Check structure
 dplyr::glimpse(clim_v2)
 
-## ----------------------------- ##
-# Check Sites ----
-## ----------------------------- ##
-
-# What sites are in the data?
-sort(unique(clim_v2$site))
-
-# Want to extract site abbreviations (for graphs)
-clim_v3 <- clim_v2 %>% 
-  # Resolve "Other" entry (just one response had this)
-  dplyr::mutate(site = ifelse(site == "Other",
-                              # Response in 'site other' column: "pie and gce"
-                              yes = "Plum Island Ecosystems LTER (PIE)", 
-                              no = site)) %>% 
-  # Split into separate columns by parentheses
-  tidyr::separate_wider_delim(cols = site, delim = " (",
-                              names = c("site_name", "site")) %>% 
-  # Remove trailing parentheses left over
-  dplyr::mutate(site = gsub(pattern = "\\)", replacement = "", x = site))
-
-# What sites are left?
-sort(unique(clim_v3$site))
-
-# Check structure
-dplyr::glimpse(clim_v3)
-
-## ----------------------------- ##
-# Fill Missing Values ----
-## ----------------------------- ##
-
-# Need to fill missing values in some columns
-clim_v4 <- clim_v3 %>% 
-  # Antagonistic interactions
-  dplyr::mutate(antagonistic_interactions_stage = ifelse(is.na(antagonistic_interactions_stage),
-                                                         yes = "No antagonistic interactions",
-                                                         no = antagonistic_interactions_stage))
-
-# Check structure
-dplyr::glimpse(clim_v4)
 
 
 
