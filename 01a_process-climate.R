@@ -96,14 +96,15 @@ clim_v4 <- clim_v3 %>%
                                     yes = 1, no = 0),
     ## Field work (land-based)
     activity_fieldwork_land = ifelse(stringr::str_detect(string = respondent_activities,
-                                                         pattern = "Field work (land-based)"),
+                                                         pattern = "land-based"),
                                      yes = 1, no = 0),
     ## Field work (small boats)
     activity_fieldwork_boat = ifelse(stringr::str_detect(string = respondent_activities,
-                                                         pattern = "Field work (small boats)"),
+                                                         pattern = "small boats"),
                                      yes = 1, no = 0),
+    ## Field work (ship-based)
     activity_fieldwork_ship = ifelse(stringr::str_detect(string = respondent_activities,
-                                                         pattern = "Field work (ship-based)"),
+                                                         pattern = "ship-based"),
                                      yes = 1, no = 0),
     ## Lab work
     activity_lab = ifelse(stringr::str_detect(string = respondent_activities,
