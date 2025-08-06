@@ -198,6 +198,6 @@ clim_v99 <- clim_v6
 
 # Export locally
 write.csv(x = clim_v99, row.names = F, na = '',
-          file = file.path("data", "01_processed-climate.csv"))
+          file = file.path("data", "01a_processed-climate.csv"))
 
 # End ----
