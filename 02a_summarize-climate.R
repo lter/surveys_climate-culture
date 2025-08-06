@@ -149,22 +149,80 @@ for(scope in c("Network", "Site-Specific")){
 } # Close loop
 
 # Process that output
-result_df <- result_list %>% 
+result_v1 <- result_list %>% 
   # Unlist that list
   purrr::list_rbind(x = .)
 
 # Check structure
-dplyr::glimpse(result_df)
-##  view(result_df)
+dplyr::glimpse(result_v1)
 
 # All sites included?
-sort(unique(result_df$site))
+sort(unique(result_v1$site))
 
 # Get a score dataframe too
-score_df <- purrr::list_rbind(x = score_list)
+score_v1 <- purrr::list_rbind(x = score_list)
 
 # Check structure
-dplyr::glimpse(score_df)
+dplyr::glimpse(score_v1)
+
+## ----------------------------- ##
+# Calculate 80th Percentile (Results) ----
+## ----------------------------- ##
+
+# Split out Network averages from site-specifics
+result_v2a <- dplyr::filter(result_v1, site == "Network")
+result_v2b <- dplyr::filter(result_v1, site != "Network")
+
+# Process site-specific data as needed
+result_v3b <- result_v2b %>% 
+  # Calculate 80th percentile
+  dplyr::group_by(question) %>% 
+  dplyr::mutate(perc20 = as.numeric(quantile(x = percent, probs = 0.8))) %>% 
+  dplyr::ungroup() %>% 
+  # Make a site column that is ambiguous for sites below the 80th percentile
+  dplyr::mutate(site_ambig = ifelse(percent < perc20,
+                                    yes = "Other", no = site),
+                .after = site)
+
+# Check structure
+dplyr::glimpse(result_v3b)
+
+# Recombine with un-aggregated data
+result_v4 <- dplyr::bind_rows(result_v3b, result_v2a)
+
+# Check structure
+dplyr::glimpse(result_v4)
+
+## ----------------------------- ##
+# Calculate 80th Percentile (Scores) ----
+## ----------------------------- ##
+
+# Split out Network averages from site-specifics
+score_v2a <- dplyr::filter(score_v1, site == "Network")
+score_v2b <- dplyr::filter(score_v1, site != "Network")
+
+# Process site-specific data as needed
+score_v3b <- score_v2b %>% 
+  # Calculate 80th percentile
+  dplyr::mutate(perc20 = as.numeric(quantile(x = climate_score_mean, probs = 0.8))) %>% 
+  # Make a site column that is ambiguous for sites below the 80th percentile
+  dplyr::mutate(site_ambig = ifelse(climate_score_mean < perc20,
+                                    yes = "Other", no = site),
+                .after = site)
+
+# Check structure
+dplyr::glimpse(score_v3b)
+
+# Recombine with un-aggregated data
+score_v4 <- dplyr::bind_rows(score_v3b, score_v2a)
+
+# Check structure
+dplyr::glimpse(score_v4)
+
+
+
+
+
 
 ## ----------------------------- ##
 # Export ----
@@ -172,7 +230,7 @@ dplyr::glimpse(score_df)
 
 # Make final objects
 result_v99 <- result_df
-score_v99 <- score_df
+score_v99 <- score_v4
 
 # Export locally
 write.csv(x = result_v99, row.names = F, na = '',
