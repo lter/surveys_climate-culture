@@ -159,83 +159,106 @@ dplyr::glimpse(result_v1)
 # All sites included?
 sort(unique(result_v1$site))
 
-# Get a score dataframe too
+## ----------------------------- ##
+# Export (Summarized Results) ----
+## ----------------------------- ##
+
+# Make final objects
+result_v99 <- result_v1
+
+# Export locally
+write.csv(x = result_v99, row.names = F, na = '',
+          file = file.path("data", "02a_summarized-climate.csv"))
+
+## ----------------------------- ##
+# Calculate Composites ----
+## ----------------------------- ##
+
+# Process data to prepare to get composite scores
+comp_v1 <- result_v1 %>% 
+  # Streamline data to only questions included in the composite scores
+  dplyr::filter(question %in% c("belonging_others", "belonging_self", "general_productivity",
+                                "general_wellbeing", "information_resources_safety",
+                                "physical_safety", "self_advocacy")) %>% 
+  dplyr::filter(answer %in% c("Neutral", "Disagree", "Strongly disagree") != T) %>% 
+  # Sum within questions across answers
+  dplyr::group_by(site, question) %>% 
+  dplyr::summarize(perc_total = sum(percent, na.rm = T),
+                   .groups = "keep") %>% 
+  dplyr::ungroup()
+
+# Check structure
+dplyr::glimpse(comp_v1)
+
+
+sort(unique(comp_v1$question))
+
+# Actually calculate composites
+comp_v2 <- comp_v1 %>% 
+  # Identify composites
+  dplyr::mutate(composite = dplyr::case_when(
+    question %in% c("general_productivity") ~ "composite_climate",
+    question %in% c("belonging_self", "belonging_others") ~ "composite_belonging",
+    question %in% c("self_advocacy") ~ "composite_civility",
+    question %in% c("physical_safety") ~ "composite_safety_general",
+    question %in% c("general_wellbeing") ~ "composite_safety_social",
+    question %in% c("information_resources_safety") ~ "composite_inst_knowledge",
+    T ~ NA)) %>% 
+  dplyr::filter(!is.na(composite)) %>% 
+  # Actually calculate composite scores
+  dplyr::group_by(site, composite) %>% 
+  dplyr::summarize(score = mean(perc_total, na.rm = T),
+                   .groups = "keep") %>% 
+  dplyr::ungroup()
+
+# Check structure
+dplyr::glimpse(comp_v2)
+
+# Want to identify 80th percentile sites for each composite score
+comp_v3 <- comp_v2 %>% 
+  # Remove network-wide averages
+  dplyr::filter(site != "Network") %>% 
+  # Calculate 80th percentile per score
+  dplyr::group_by(composite) %>% 
+  dplyr::mutate(perc80 = as.numeric(quantile(x = score, probs = 0.8))) %>% 
+  dplyr::ungroup() %>% 
+  # Generate site names that are anonymous beneath 80th percentile
+  dplyr::mutate(site_ambig = ifelse(score < perc80, yes = "Other", no = site),
+                .after = site)
+
+# Check structure
+dplyr::glimpse(comp_v3)
+
+## ----------------------------- ##
+# Export (Composite Scores) ----
+## ----------------------------- ##
+
+# Make a final object
+comp_v99 <- comp_v3
+
+# Export locally
+write.csv(x = comp_v99, row.names = F, na = '',
+          file = file.path("data", "02a_composite-scores.csv"))
+
+## ----------------------------- ##
+# Process Respondent Climate Score ----
+## ----------------------------- ##
+
+# Get a score dataframe for the original climate score too
 score_v1 <- purrr::list_rbind(x = score_list)
 
 # Check structure
 dplyr::glimpse(score_v1)
 
 ## ----------------------------- ##
-# Calculate 80th Percentile (Results) ----
+# Export (Respondent Climate Scores) ----
 ## ----------------------------- ##
 
-# Split out Network averages from site-specifics
-result_v2a <- dplyr::filter(result_v1, site == "Network")
-result_v2b <- dplyr::filter(result_v1, site != "Network")
-
-# Process site-specific data as needed
-result_v3b <- result_v2b %>% 
-  # Calculate 80th percentile
-  dplyr::group_by(question) %>% 
-  dplyr::mutate(perc20 = as.numeric(quantile(x = percent, probs = 0.8))) %>% 
-  dplyr::ungroup() %>% 
-  # Make a site column that is ambiguous for sites below the 80th percentile
-  dplyr::mutate(site_ambig = ifelse(percent < perc20,
-                                    yes = "Other", no = site),
-                .after = site)
-
-# Check structure
-dplyr::glimpse(result_v3b)
-
-# Recombine with un-aggregated data
-result_v4 <- dplyr::bind_rows(result_v3b, result_v2a)
-
-# Check structure
-dplyr::glimpse(result_v4)
-
-## ----------------------------- ##
-# Calculate 80th Percentile (Scores) ----
-## ----------------------------- ##
-
-# Split out Network averages from site-specifics
-score_v2a <- dplyr::filter(score_v1, site == "Network")
-score_v2b <- dplyr::filter(score_v1, site != "Network")
-
-# Process site-specific data as needed
-score_v3b <- score_v2b %>% 
-  # Calculate 80th percentile
-  dplyr::mutate(perc20 = as.numeric(quantile(x = climate_score_mean, probs = 0.8))) %>% 
-  # Make a site column that is ambiguous for sites below the 80th percentile
-  dplyr::mutate(site_ambig = ifelse(climate_score_mean < perc20,
-                                    yes = "Other", no = site),
-                .after = site)
-
-# Check structure
-dplyr::glimpse(score_v3b)
-
-# Recombine with un-aggregated data
-score_v4 <- dplyr::bind_rows(score_v3b, score_v2a)
-
-# Check structure
-dplyr::glimpse(score_v4)
-
-
-
-
-
-
-## ----------------------------- ##
-# Export ----
-## ----------------------------- ##
-
-# Make final objects
-result_v99 <- result_df
-score_v99 <- score_v4
+# Make a final object
+score_v99 <- score_v1
 
 # Export locally
-write.csv(x = result_v99, row.names = F, na = '',
-          file = file.path("data", "02a_summarized-climate.csv"))
 write.csv(x = score_v99, row.names = F, na = '',
-          file = file.path("data", "02a_climate-scores.csv"))
+          file = file.path("data", "02a_climate-score.csv"))
 
 # End ----
