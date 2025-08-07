@@ -70,7 +70,7 @@ df_net <- df_prep %>%
 # Actually generate graph
 ggplot(data = df_net, aes(x = network_percent, y = answer, fill = answer, color = "x")) +
   geom_bar(stat = "identity") +
-  labs(x = "Percent Responses") +
+  labs(x = "Percent Responses", title = "Network-Wide Averages") +
   # scale_fill_manual(values = ord) +
   scale_color_manual(values = "#000") +
   theme_bw() +
@@ -81,28 +81,39 @@ ggplot(data = df_net, aes(x = network_percent, y = answer, fill = answer, color 
         legend.position = "none",
         axis.title.y = element_blank())
 
-# Make graph for one site
-ggplot() +
-  geom_bar(data = dplyr::filter(df_prep, site == "MCR"), 
-           mapping = aes(x = percent, y = answer, fill = answer),
-           stat = "identity") +
-  geom_point(df_net, mapping = aes(x = network_percent, y = answer),
-             size = 3, shape = 18) +
-  facet_grid(. ~ site) +
-  labs(x = "Percent Responses") +
-  scale_color_manual(values = "#000") +
-  theme_bw() +
-  theme(strip.text = element_text(size = 12),
-        axis.text.x = element_text(size = 10),
-        axis.text.y = element_text(size = 8),
-        axis.title = element_text(size = 12),
-        legend.position = "none",
-        axis.title.y = element_blank())
-
-ggsave(filename = file.path("graphs", "demo-plot_activities.png"),
+# Export locally
+ggsave(filename = file.path("graphs", "respondent_activities__network.png"),
        height = 4, width = 6, units = "in")
 
-
+# Loop across sites
+for(focal_site in sort(unique(df_prep$site))){
+  
+  # Progress message
+  message("Making graph for ", focal_site)
+  
+  # Make graph for one site
+  ggplot() +
+    geom_bar(data = dplyr::filter(df_prep, site == focal_site), 
+             mapping = aes(x = percent, y = answer, fill = answer, color = "x"),
+             stat = "identity") +
+    geom_point(df_net, mapping = aes(x = network_percent, y = answer),
+               size = 3, shape = 18) +
+    facet_grid(. ~ site) +
+    labs(x = "Percent Responses") +
+    scale_color_manual(values = "#000") +
+    theme_bw() +
+    theme(strip.text = element_text(size = 12),
+          axis.text.x = element_text(size = 10),
+          axis.text.y = element_text(size = 8),
+          axis.title = element_text(size = 12),
+          legend.position = "none",
+          axis.title.y = element_blank())
+  
+  # Export locally
+  ggsave(filename = file.path("graphs", paste0("respondent_activities_", focal_site, ".png")),
+         height = 4, width = 6, units = "in")
+  
+} # Close loop
 
 # Clear environment
 rm(list = c("ord", "df_prep", "df_net"))
