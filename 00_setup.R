@@ -22,6 +22,7 @@ rm(list = ls()); gc()
 
 # Make needed folders
 dir.create(path = file.path("data", "raw"), showWarnings = F, recursive = T)
+dir.create(path = file.path("graphs"), showWarnings = F)
 
 ## ----------------------------- ##
 # Download Climate Data ----
