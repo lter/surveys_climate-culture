@@ -35,42 +35,77 @@ res_v1 <- read.csv(file = file.path("data", "02a_summarized-climate.csv"))
 # Check structure
 dplyr::glimpse(res_v1)
 
-# Make 'network-wide' and 'site-specific' variants of both
-## Composites
-comp_net <- dplyr::filter(.data = comp_v1, site == "Network")
-comp_site <- dplyr::filter(.data = comp_v1, site != "Network")
-## General results
-res_net <- dplyr::filter(.data = res_v1, site == "Network")
-res_site <- dplyr::filter(.data = res_v1, site != "Network")
-
 ## ----------------------------- ##
 # Activities ----
 ## ----------------------------- ##
 
-# Identify preferred order
-ord <- res_net %>% 
+# Identify preferred order & colors
+ord <- c("Education or public engagement" = "#fca311",
+         "Virtual events" = "#748cab",
+         "In-person events" = "#1d2d44",
+         "Information management" = "#005f73",
+         "Modeling" = "#94d2bd",
+         "Synthesis" = "#9b5de5",
+         "Lab work" = "#e9d8a6",
+         "Field work (small boats)" = "#ee9b00",
+         "Field work (ship-based)" = "#ca6702",
+         "Field work (land-based)" = "#bb3e03",
+         "Field work (any)" = "#9b2226",
+         "Research" = "#cdb4db",
+         "Administrative duties" = "#dad7cd")
+
+# Prepare data
+df_prep <- res_v1 %>% 
   dplyr::filter(question == "respondent_activities") %>% 
-  dplyr::arrange(-percent)
+  dplyr::mutate(answer = factor(answer, levels = names(ord)))
 
-view(ord)
+# Check structure
+dplyr::glimpse(df_prep)
 
-# Identify colors
+# Make a 'network only' version
+df_net <- df_prep %>% 
+  dplyr::select(question, answer, dplyr::starts_with("network_")) %>% 
+  dplyr::distinct()
 
-
-
-ggplot(data = dplyr::filter(res_net, question == "respondent_activities"), 
-       aes(x = percent, y = answer, fill = answer)) +
+# Actually generate graph
+ggplot(data = df_net, aes(x = network_percent, y = answer, fill = answer, color = "x")) +
   geom_bar(stat = "identity") +
-  facet_grid(. ~ site) +
+  labs(x = "Percent Responses") +
+  # scale_fill_manual(values = ord) +
+  scale_color_manual(values = "#000") +
   theme_bw() +
   theme(strip.text = element_text(size = 12),
+        axis.text.x = element_text(size = 10),
+        axis.text.y = element_text(size = 8),
+        axis.title = element_text(size = 12),
         legend.position = "none",
         axis.title.y = element_blank())
+
+# Make graph for one site
+ggplot() +
+  geom_bar(data = dplyr::filter(df_prep, site == "MCR"), 
+           mapping = aes(x = percent, y = answer, fill = answer),
+           stat = "identity") +
+  geom_point(df_net, mapping = aes(x = network_percent, y = answer),
+             size = 3, shape = 18) +
+  facet_grid(. ~ site) +
+  labs(x = "Percent Responses") +
+  scale_color_manual(values = "#000") +
+  theme_bw() +
+  theme(strip.text = element_text(size = 12),
+        axis.text.x = element_text(size = 10),
+        axis.text.y = element_text(size = 8),
+        axis.title = element_text(size = 12),
+        legend.position = "none",
+        axis.title.y = element_blank())
+
+ggsave(filename = file.path("graphs", "demo-plot_activities.png"),
+       height = 4, width = 6, units = "in")
 
 
 
 # Clear environment
-rm(list = setdiff(ls(), c("comp_net", "comp_site", "res_net", "res_site")))
+rm(list = c("ord", "df_prep", "df_net"))
 
 
 
