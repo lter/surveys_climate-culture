@@ -101,8 +101,8 @@ for(scope in c("Network", "Site-Specific")){
     # Expand question/answer columns
     dplyr::mutate(answer = dplyr::case_when(
       category == "activity_admin" ~ "Administrative duties",
-      category == "activity_education" ~ "Education, outreach, and/or public engagement",
-      category == "activity_fieldwork_any" ~ "Field work (Any)",
+      category == "activity_education" ~ "Education or public engagement",
+      category == "activity_fieldwork_any" ~ "Field work (any)",
       category == "activity_fieldwork_land" ~ "Field work (land-based)",
       category == "activity_fieldwork_boat" ~ "Field work (small boats)",
       category == "activity_fieldwork_ship" ~ "Field work (ship-based)",
