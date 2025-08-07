@@ -164,11 +164,40 @@ dplyr::glimpse(result_v1)
 sort(unique(result_v1$site))
 
 ## ----------------------------- ##
+# Process Summarized Results ----
+## ----------------------------- ##
+
+# Separate network-level and site-level
+result_net_v1 <- dplyr::filter(result_v1, site == "Network")
+result_site_v1 <- dplyr::filter(result_v1, site != "Network")
+
+# Tweak format of network one slightly
+result_net_v2 <- result_net_v1 %>% 
+  # Drop site column
+  dplyr::select(-site) %>% 
+  # Rename numeric columns
+  supportR::safe_rename(data = ., bad_names = c("total", "ct", "percent"),
+                        good_names = paste0("network_", c("total", "ct", "percent")))
+
+# Check structure
+dplyr::glimpse(result_net_v2)
+
+# Recomine network and site-level results
+result_v2 <- result_site_v1 %>% 
+  dplyr::left_join(result_net_v2, by = c("question", "answer"))
+
+# Check structure
+dplyr::glimpse(result_v2)
+
+# Check included sites
+sort(unique(result_v2$site))
+
+## ----------------------------- ##
 # Export (Summarized Results) ----
 ## ----------------------------- ##
 
 # Make final objects
-result_v99 <- result_v1
+result_v99 <- result_v2
 
 # Export locally
 write.csv(x = result_v99, row.names = F, na = '',
@@ -325,22 +354,33 @@ dplyr::glimpse(comp_v5)
 # Parse the network-level composites
 comp_net <- comp_v3 %>% 
   dplyr::filter(site == "Network") %>% 
-  dplyr::mutate(composite = paste0(composite, "_score")) %>% 
-  tidyr::pivot_wider(names_from = composite, values_from = score)
+  dplyr::mutate(composite = paste0(composite, "_network_score")) %>% 
+  tidyr::pivot_wider(names_from = composite, values_from = score) %>% 
+  dplyr::select(-site)
 
 # Check structure
 dplyr::glimpse(comp_net)
 
-# Get a final object
+# Combine composite scores with respondent's climate scores
 comp_v6 <- comp_v5 %>% 
   # Combine network level composite scores
-  dplyr::bind_rows(comp_net) %>% 
+  cbind(comp_net) %>% 
   # And attach the respondents mean climate scores too
   dplyr::left_join(score_v3, by = "site") %>% 
-  dplyr::relocate(dplyr::starts_with("climate_score"), .after = site)
+  # Reorder all other
+  dplyr::relocate(dplyr::starts_with("composite_trust"), .after = site) %>% 
+  dplyr::relocate(dplyr::starts_with("composite_safety_social"), .after = site) %>% 
+  dplyr::relocate(dplyr::starts_with("composite_safety_general"), .after = site) %>% 
+  dplyr::relocate(dplyr::starts_with("composite_prosocial"), .after = site) %>% 
+  dplyr::relocate(dplyr::starts_with("composite_climate"), .after = site) %>% 
+  dplyr::relocate(dplyr::starts_with("composite_belonging"), .after = site) %>% 
+  dplyr::relocate(dplyr::starts_with("climate_score"), .after = site) 
 
 # Check structure
 dplyr::glimpse(comp_v6)
+
+# Check sites
+sort(unique(comp_v6$site))
 
 ## ----------------------------- ##
 # Export (Composite Scores) ----
