@@ -225,26 +225,41 @@ comp_v1 <- result_v1 %>%
     ## Composite safety (general)
     "physical_safety", "information_resources_safety", "self_advocacy",
     ## Composite safety (social)
-    
+    "gender_harassment", "internal_antagonistic_interactions",
+    "external_antagonistic_interactions",
     ## Composite trust
-    
+    "reporting", "accomodations",
     ## Composite pro-social
     "frequency_courtesy", "frequency_assistance", "frequency_praise",
     "frequency_interest", "frequency_public_recognition")) %>% 
-  dplyr::filter(answer %in% c("Agree", "Strongly agree",
-                              "Frequently", "Very frequently",
-                              as.character(8:10))) %>% 
-  # Sum within questions across answers
+  dplyr::filter((answer %in% c("Agree", "Strongly agree",
+                               as.character(8:10),
+                               "Yes- and I would know how to do so")) |
+                  (stringr::str_detect(string = question, 
+                                       pattern = "frequency") & 
+                     answer %in% c("Frequently", "Very frequently")) |
+                  (stringr::str_detect(string = question, 
+                                       pattern = "antagonistic") & 
+                     answer == "Never"))
+
+# Check what that leaves us with
+comp_v1 %>% 
+  dplyr::group_by(question) %>% 
+  dplyr::summarize(answers = paste(unique(answer), collapse = "; "),
+                   .groups = "keep")
+
+# Sum within questions across remaining answers
+comp_v2 <- comp_v1 %>% 
   dplyr::group_by(site, question) %>% 
   dplyr::summarize(perc_total = sum(percent, na.rm = T),
                    .groups = "keep") %>% 
   dplyr::ungroup()
 
 # Check structure
-dplyr::glimpse(comp_v1)
+dplyr::glimpse(comp_v2)
 
 # Actually calculate composites
-comp_v2 <- comp_v1 %>% 
+comp_v3 <- comp_v2 %>% 
   # Identify composites
   dplyr::mutate(composite = dplyr::case_when(
     ## Composite climate
@@ -254,9 +269,10 @@ comp_v2 <- comp_v1 %>%
     ## Composite safety (general)
     question %in% c("physical_safety", "information_resources_safety", "self_advocacy") ~ "composite_safety_general",
     ## Composite safety (social)
-    
+    question %in% c("gender_harassment", "internal_antagonistic_interactions",
+                    "external_antagonistic_interactions") ~ "composite_safety_social",
     ## Composite trust
-    
+    question %in% c("reporting", "accomodations") ~ "composite_trust",
     ## Composite pro-social
     question %in% c("frequency_courtesy", "frequency_assistance", "frequency_praise",
                     "frequency_interest", "frequency_public_recognition") ~ "composite_prosocial",
@@ -269,10 +285,10 @@ comp_v2 <- comp_v1 %>%
   dplyr::ungroup()
 
 # Check structure
-dplyr::glimpse(comp_v2)
+dplyr::glimpse(comp_v3)
 
 # Want to identify 80th percentile sites for each composite score
-comp_v3 <- comp_v2 %>% 
+comp_v4 <- comp_v3 %>% 
   # Remove network-wide averages
   dplyr::filter(site != "Network") %>% 
   # Calculate 80th percentile per score
@@ -284,10 +300,10 @@ comp_v3 <- comp_v2 %>%
                 .after = site)
 
 # Check structure
-dplyr::glimpse(comp_v3)
+dplyr::glimpse(comp_v4)
 
 # Tweak data shape before exporting
-comp_v4 <- comp_v3 %>% 
+comp_v5 <- comp_v4 %>% 
   # Pivot longer
   dplyr::mutate(dplyr::across(.cols = dplyr::everything(),
                               .fns = ~ as.character(.))) %>% 
@@ -304,10 +320,10 @@ comp_v4 <- comp_v3 %>%
                               .fns = ~ as.numeric(.)))
 
 # Check structure
-dplyr::glimpse(comp_v4)
+dplyr::glimpse(comp_v5)
 
 # Parse the network-level composites
-comp_net <- comp_v2 %>% 
+comp_net <- comp_v3 %>% 
   dplyr::filter(site == "Network") %>% 
   dplyr::mutate(composite = paste0(composite, "_score")) %>% 
   tidyr::pivot_wider(names_from = composite, values_from = score)
@@ -316,7 +332,7 @@ comp_net <- comp_v2 %>%
 dplyr::glimpse(comp_net)
 
 # Get a final object
-comp_v5 <- comp_v4 %>% 
+comp_v6 <- comp_v5 %>% 
   # Combine network level composite scores
   dplyr::bind_rows(comp_net) %>% 
   # And attach the respondents mean climate scores too
@@ -324,14 +340,14 @@ comp_v5 <- comp_v4 %>%
   dplyr::relocate(dplyr::starts_with("climate_score"), .after = site)
 
 # Check structure
-dplyr::glimpse(comp_v5)
+dplyr::glimpse(comp_v6)
 
 ## ----------------------------- ##
 # Export (Composite Scores) ----
 ## ----------------------------- ##
 
 # Make a final object
-comp_v99 <- comp_v5
+comp_v99 <- comp_v6
 
 # Export locally
 write.csv(x = comp_v99, row.names = F, na = '',
