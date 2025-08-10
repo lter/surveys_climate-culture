@@ -50,7 +50,9 @@ res_net <- res_v1 %>%
 dplyr::glimpse(res_net)
 
 # Combine with other result data
-res_v2 <- dplyr::bind_rows(res_v1, res_net)
+res_v2 <- dplyr::bind_rows(res_v1, res_net) %>% 
+  # Make 'network' the first factor level
+  dplyr::mutate(site = factor(site, levels = c("Network", setdiff(sort(site), "Network"))))
 
 # Check that out
 sort(unique(res_v2$site))
@@ -155,8 +157,7 @@ df_prep <- res_v2 %>%
   dplyr::filter(question == "fieldwork_duration") %>% 
   dplyr::mutate(answer = ifelse(answer == "I don't participate in this type of data collection",
                                 yes = "0 weeks", no = answer)) %>% 
-  dplyr::mutate(answer = factor(answer, levels = rev(names(ord)))) %>% 
-  dplyr::mutate(site = factor(site, levels = c("Network", setdiff(sort(site), "Network"))))
+  dplyr::mutate(answer = factor(answer, levels = rev(names(ord))))
 
 # Check structure
 dplyr::glimpse(df_prep)
