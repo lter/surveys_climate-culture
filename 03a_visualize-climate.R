@@ -161,6 +161,25 @@ df_prep <- res_v2 %>%
 # Check structure
 dplyr::glimpse(df_prep)
 
+# Make a network-wide version
+ggplot(df_prep, aes(x = site, y = percent, fill = answer, color = "x")) +
+  geom_bar(stat = "identity") +
+  scale_color_manual(values = "#000") +
+  scale_fill_manual(values = ord) +
+  labs(y = "Percent Responses") +
+  guides(color = "none") +
+  theme_bw() +
+  theme(legend.position = "right",
+        legend.title = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_text(size = 12),
+        axis.text.x = element_text(size = 12, angle = 90, hjust = 1),
+        axis.text.y = element_text(size = 10))
+
+# Export locally
+ggsave(filename = file.path("graphs", "fieldwork_duration__network.png"),
+       height = 4, width = 8, units = "in")
+
 # Loop across sites
 for(focal_site in setdiff(sort(unique(df_prep$site)), "Network")){
   
@@ -191,7 +210,6 @@ for(focal_site in setdiff(sort(unique(df_prep$site)), "Network")){
 
 # Clear environment
 rm(list = c("ord", "df_prep", "focal_site", "plot"))
-
 
 ## ----------------------------- ##
 # Template ----
