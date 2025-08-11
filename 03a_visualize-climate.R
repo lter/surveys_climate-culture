@@ -105,7 +105,7 @@ ggplot(data = df_net, aes(x = network_percent, y = answer, fill = answer, color 
         axis.title.y = element_blank())
 
 # Export locally
-ggsave(filename = file.path("graphs", "respondent_activities__network.png"),
+ggsave(filename = file.path("graphs", "respondent-activities__network.png"),
        height = 4, width = 6, units = "in")
 
 # Loop across sites
@@ -133,7 +133,7 @@ for(focal_site in sort(unique(df_prep$site))){
           axis.title.y = element_blank())
   
   # Export locally
-  ggsave(filename = file.path("graphs", paste0("respondent_activities_", focal_site, ".png")),
+  ggsave(filename = file.path("graphs", paste0("respondent-activities_", focal_site, ".png")),
          height = 4, width = 6, units = "in")
   
 } # Close loop
@@ -178,7 +178,7 @@ ggplot(df_prep, aes(x = site, y = percent, fill = answer, color = "x")) +
         axis.text.y = element_text(size = 10))
 
 # Export locally
-ggsave(filename = file.path("graphs", "fieldwork_duration__network.png"),
+ggsave(filename = file.path("graphs", "fieldwork-duration__network.png"),
        height = 4, width = 8, units = "in")
 
 # Loop across sites
@@ -204,7 +204,7 @@ for(focal_site in setdiff(sort(unique(df_prep$site)), "Network")){
           axis.text.y = element_text(size = 10)); plot
   
   # Export locally
-  ggsave(filename = file.path("graphs", paste0("fieldwork_duration_", focal_site, ".png")),
+  ggsave(filename = file.path("graphs", paste0("fieldwork-duration_", focal_site, ".png")),
          height = 6, width = 6, units = "in")
   
 } # Close loop
