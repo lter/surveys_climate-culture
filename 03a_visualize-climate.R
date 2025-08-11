@@ -186,7 +186,47 @@ for(focal_site in setdiff(sort(unique(res_v2$site)), "Network")){
 } # Close loop
 
 # Clear environment
-rm(list = c("ord", "df_prep", "focal_site", "plot"))
+rm(list = c("ord", "focal_site", "plot"))
+
+## ----------------------------- ##
+# Non-Data Collection Community ----
+## ----------------------------- ##
+
+# Identify preferred order & colors
+ord <- c("Other" = "gray80",
+         "Daily" = "#ffe6a7",
+         "Weekly" = "#bb9457",
+         "Monthly" = "#99582a",
+         "Quarterly" = "#432818")
+
+# Make a network-wide version
+res_v2 %>% 
+  plot_bar_stack(df = ., focal_q = "contact_time", answer_colors = ord) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Export locally
+ggsave(filename = file.path("graphs", "contact-time__network.png"),
+       height = 4, width = 8, units = "in")
+
+# Loop across sites
+for(focal_site in setdiff(sort(unique(res_v2$site)), "Network")){
+  
+  # Progress message
+  message("Making graph for ", focal_site)
+  
+  # Make graph
+  plot <- plot_bar_stack(df = dplyr::filter(res_v2, site %in% c("Network", focal_site)), 
+                         focal_q = "contact_time",
+                         answer_colors = ord); plot
+  
+  # Export locally
+  ggsave(filename = file.path("graphs", paste0("contact-time_", focal_site, ".png")),
+         height = 6, width = 6, units = "in")
+  
+} # Close loop
+
+# Clear environment
+rm(list = c("ord", "focal_site", "plot"))
 
 ## ----------------------------- ##
 # Template ----
@@ -195,22 +235,142 @@ rm(list = c("ord", "df_prep", "focal_site", "plot"))
 # Identify preferred order & colors
 ord <- c("" = "#")
 
-# Prepare data
-df_prep <- res_v1 %>% 
-  dplyr::filter(question == "respondent_activities") %>% 
-  dplyr::mutate(answer = factor(answer, levels = names(ord)))
+# Make a network-wide version
+res_v2 %>% 
+  plot_bar_stack(df = ., focal_q = "fieldwork_duration", answer_colors = ord) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
-# Check structure
-dplyr::glimpse(df_prep)
+# Export locally
+ggsave(filename = file.path("graphs", "fieldwork-duration__network.png"),
+       height = 4, width = 8, units = "in")
 
-# Make a 'network only' version
-df_net <- df_prep %>% 
-  dplyr::select(question, answer, dplyr::starts_with("network_")) %>% 
-  dplyr::distinct()
-
+# Loop across sites
+for(focal_site in setdiff(sort(unique(res_v2$site)), "Network")){
+  
+  # Progress message
+  message("Making graph for ", focal_site)
+  
+  # Make graph
+  plot <- plot_bar_stack(df = dplyr::filter(res_v2, site %in% c("Network", focal_site)), 
+                         focal_q = "fieldwork_duration",
+                         answer_colors = ord); plot
+  
+  # Export locally
+  ggsave(filename = file.path("graphs", paste0("fieldwork-duration_", focal_site, ".png")),
+         height = 6, width = 6, units = "in")
+  
+} # Close loop
 
 # Clear environment
-rm(list = c("ord", "df_prep", "df_net", "focal_site"))
+rm(list = c("ord", "focal_site", "plot"))
+
+## ----------------------------- ##
+# Template ----
+## ----------------------------- ##
+
+# Identify preferred order & colors
+ord <- c("" = "#")
+
+# Make a network-wide version
+res_v2 %>% 
+  plot_bar_stack(df = ., focal_q = "fieldwork_duration", answer_colors = ord) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Export locally
+ggsave(filename = file.path("graphs", "fieldwork-duration__network.png"),
+       height = 4, width = 8, units = "in")
+
+# Loop across sites
+for(focal_site in setdiff(sort(unique(res_v2$site)), "Network")){
+  
+  # Progress message
+  message("Making graph for ", focal_site)
+  
+  # Make graph
+  plot <- plot_bar_stack(df = dplyr::filter(res_v2, site %in% c("Network", focal_site)), 
+                         focal_q = "fieldwork_duration",
+                         answer_colors = ord); plot
+  
+  # Export locally
+  ggsave(filename = file.path("graphs", paste0("fieldwork-duration_", focal_site, ".png")),
+         height = 6, width = 6, units = "in")
+  
+} # Close loop
+
+# Clear environment
+rm(list = c("ord", "focal_site", "plot"))
+
+## ----------------------------- ##
+# Template ----
+## ----------------------------- ##
+
+# Identify preferred order & colors
+ord <- c("" = "#")
+
+# Make a network-wide version
+res_v2 %>% 
+  plot_bar_stack(df = ., focal_q = "fieldwork_duration", answer_colors = ord) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Export locally
+ggsave(filename = file.path("graphs", "fieldwork-duration__network.png"),
+       height = 4, width = 8, units = "in")
+
+# Loop across sites
+for(focal_site in setdiff(sort(unique(res_v2$site)), "Network")){
+  
+  # Progress message
+  message("Making graph for ", focal_site)
+  
+  # Make graph
+  plot <- plot_bar_stack(df = dplyr::filter(res_v2, site %in% c("Network", focal_site)), 
+                         focal_q = "fieldwork_duration",
+                         answer_colors = ord); plot
+  
+  # Export locally
+  ggsave(filename = file.path("graphs", paste0("fieldwork-duration_", focal_site, ".png")),
+         height = 6, width = 6, units = "in")
+  
+} # Close loop
+
+# Clear environment
+rm(list = c("ord", "focal_site", "plot"))
+
+## ----------------------------- ##
+# Template ----
+## ----------------------------- ##
+
+# Identify preferred order & colors
+ord <- c("" = "#")
+
+# Make a network-wide version
+res_v2 %>% 
+  plot_bar_stack(df = ., focal_q = "fieldwork_duration", answer_colors = ord) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Export locally
+ggsave(filename = file.path("graphs", "fieldwork-duration__network.png"),
+       height = 4, width = 8, units = "in")
+
+# Loop across sites
+for(focal_site in setdiff(sort(unique(res_v2$site)), "Network")){
+  
+  # Progress message
+  message("Making graph for ", focal_site)
+  
+  # Make graph
+  plot <- plot_bar_stack(df = dplyr::filter(res_v2, site %in% c("Network", focal_site)), 
+                         focal_q = "fieldwork_duration",
+                         answer_colors = ord); plot
+  
+  # Export locally
+  ggsave(filename = file.path("graphs", paste0("fieldwork-duration_", focal_site, ".png")),
+         height = 6, width = 6, units = "in")
+  
+} # Close loop
+
+# Clear environment
+rm(list = c("ord", "focal_site", "plot"))
 
 
 
