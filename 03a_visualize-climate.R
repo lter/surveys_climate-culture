@@ -229,19 +229,25 @@ for(focal_site in setdiff(sort(unique(res_v2$site)), "Network")){
 rm(list = c("ord", "focal_site", "plot"))
 
 ## ----------------------------- ##
-# Template ----
+# LTER Role ----
 ## ----------------------------- ##
 
 # Identify preferred order & colors
 ord <- c("" = "#")
 
+res_v2 %>% 
+  filter(question == "lter_role") %>% 
+  select(question, answer) %>% 
+  distinct()
+
+
 # Make a network-wide version
 res_v2 %>% 
-  plot_bar_stack(df = ., focal_q = "fieldwork_duration", answer_colors = ord) +
+  plot_bar_stack(df = ., focal_q = "lter_role", answer_colors = ord) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 # Export locally
-ggsave(filename = file.path("graphs", "fieldwork-duration__network.png"),
+ggsave(filename = file.path("graphs", "lter-role__network.png"),
        height = 4, width = 8, units = "in")
 
 # Loop across sites
@@ -252,11 +258,11 @@ for(focal_site in setdiff(sort(unique(res_v2$site)), "Network")){
   
   # Make graph
   plot <- plot_bar_stack(df = dplyr::filter(res_v2, site %in% c("Network", focal_site)), 
-                         focal_q = "fieldwork_duration",
+                         focal_q = "lter_role",
                          answer_colors = ord); plot
   
   # Export locally
-  ggsave(filename = file.path("graphs", paste0("fieldwork-duration_", focal_site, ".png")),
+  ggsave(filename = file.path("graphs", paste0("lter-role_", focal_site, ".png")),
          height = 6, width = 6, units = "in")
   
 } # Close loop
@@ -265,7 +271,7 @@ for(focal_site in setdiff(sort(unique(res_v2$site)), "Network")){
 rm(list = c("ord", "focal_site", "plot"))
 
 ## ----------------------------- ##
-# Template ----
+# LTER Years ----
 ## ----------------------------- ##
 
 # Identify preferred order & colors
@@ -273,11 +279,11 @@ ord <- c("" = "#")
 
 # Make a network-wide version
 res_v2 %>% 
-  plot_bar_stack(df = ., focal_q = "fieldwork_duration", answer_colors = ord) +
+  plot_bar_stack(df = ., focal_q = "years_with_lter", answer_colors = ord) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 # Export locally
-ggsave(filename = file.path("graphs", "fieldwork-duration__network.png"),
+ggsave(filename = file.path("graphs", "years-with-lter__network.png"),
        height = 4, width = 8, units = "in")
 
 # Loop across sites
@@ -288,11 +294,11 @@ for(focal_site in setdiff(sort(unique(res_v2$site)), "Network")){
   
   # Make graph
   plot <- plot_bar_stack(df = dplyr::filter(res_v2, site %in% c("Network", focal_site)), 
-                         focal_q = "fieldwork_duration",
+                         focal_q = "years_with_lter",
                          answer_colors = ord); plot
   
   # Export locally
-  ggsave(filename = file.path("graphs", paste0("fieldwork-duration_", focal_site, ".png")),
+  ggsave(filename = file.path("graphs", paste0("years-with-lter_", focal_site, ".png")),
          height = 6, width = 6, units = "in")
   
 } # Close loop
