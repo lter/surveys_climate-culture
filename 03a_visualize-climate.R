@@ -133,7 +133,7 @@ ggplot(data = df_net, aes(x = network_percent, y = answer, fill = answer, color 
         axis.title.y = element_blank())
 
 # Export locally
-ggsave(filename = file.path("graphs", "respondent-activities__network.png"),
+ggsave(filename = file.path("graphs", "network", "respondent-activities__network.png"),
        height = 4, width = 6, units = "in")
 
 # Loop across sites
@@ -161,7 +161,8 @@ for(focal_site in sort(unique(df_prep$site))){
           axis.title.y = element_blank())
   
   # Export locally
-  ggsave(filename = file.path("graphs", paste0("respondent-activities_", focal_site, ".png")),
+  ggsave(filename = file.path("graphs", "sites", 
+                              paste0("respondent-activities_", focal_site, ".png")),
          height = 4, width = 6, units = "in")
   
 } # Close loop
@@ -187,7 +188,7 @@ res_v2 %>%
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 # Export locally
-ggsave(filename = file.path("graphs", "fieldwork-duration__network.png"),
+ggsave(filename = file.path("graphs", "network", "fieldwork-duration__network.png"),
        height = 4, width = 8, units = "in")
 
 # Loop across sites
@@ -202,7 +203,8 @@ for(focal_site in setdiff(sort(unique(res_v2$site)), "Network")){
                          answers = names(ord), colors = ord); plot
   
   # Export locally
-  ggsave(filename = file.path("graphs", paste0("fieldwork-duration_", focal_site, ".png")),
+  ggsave(filename = file.path("graphs", "sites", 
+                              paste0("fieldwork-duration_", focal_site, ".png")),
          height = 6, width = 6, units = "in")
   
 } # Close loop
@@ -228,7 +230,7 @@ res_v2 %>%
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 # Export locally
-ggsave(filename = file.path("graphs", "contact-time__network.png"),
+ggsave(filename = file.path("graphs", "network", "contact-time__network.png"),
        height = 4, width = 8, units = "in")
 
 # Loop across sites
@@ -243,7 +245,8 @@ for(focal_site in setdiff(sort(unique(res_v2$site)), "Network")){
                          answers = names(ord), colors = ord); plot
   
   # Export locally
-  ggsave(filename = file.path("graphs", paste0("contact-time_", focal_site, ".png")),
+  ggsave(filename = file.path("graphs", "sites", 
+                              paste0("contact-time_", focal_site, ".png")),
          height = 6, width = 6, units = "in")
   
 } # Close loop
@@ -275,7 +278,7 @@ res_v2 %>%
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 # Export locally
-ggsave(filename = file.path("graphs", "lter-role__network.png"),
+ggsave(filename = file.path("graphs", "network", "lter-role__network.png"),
        height = 4, width = 8, units = "in")
 
 # Loop across sites
@@ -289,7 +292,8 @@ for(focal_site in setdiff(sort(unique(res_v2$site)), "Network")){
                          focal_q = "lter_role", answers = names(ord)); plot
   
   # Export locally
-  ggsave(filename = file.path("graphs", paste0("lter-role_", focal_site, ".png")),
+  ggsave(filename = file.path("graphs", "sites", 
+                              paste0("lter-role_", focal_site, ".png")),
          height = 6, width = 6, units = "in")
   
 } # Close loop
@@ -315,7 +319,7 @@ res_v2 %>%
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 # Export locally
-ggsave(filename = file.path("graphs", "years-with-lter__network.png"),
+ggsave(filename = file.path("graphs", "network", "years-with-lter__network.png"),
        height = 4, width = 8, units = "in")
 
 # Loop across sites
@@ -330,7 +334,8 @@ for(focal_site in setdiff(sort(unique(res_v2$site)), "Network")){
                          answers = names(ord), colors = ord); plot
   
   # Export locally
-  ggsave(filename = file.path("graphs", paste0("years-with-lter_", focal_site, ".png")),
+  ggsave(filename = file.path("graphs", "sites", 
+                              paste0("years-with-lter_", focal_site, ".png")),
          height = 6, width = 6, units = "in")
   
 } # Close loop
@@ -339,38 +344,53 @@ for(focal_site in setdiff(sort(unique(res_v2$site)), "Network")){
 rm(list = c("ord", "focal_site", "plot"))
 
 ## ----------------------------- ##
-# General Productivity ----
+# Agreement Questions ----
 ## ----------------------------- ##
 
-# Make a network-wide version
-res_v2 %>% 
-  plot_bar_stack(df = ., focal_q = "general_productivity", 
-                 answers = names(agree_cols), colors = agree_cols) +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-# Export locally
-ggsave(filename = file.path("graphs", "general-productivity__network.png"),
-       height = 4, width = 8, units = "in")
-
-# Loop across sites
-for(focal_site in setdiff(sort(unique(res_v2$site)), "Network")){
+# Loop across 'agreement questions'
+## Where allowed answers are conserved across several questions
+for(agree_q in c("general_productivity", "general_wellbeing", 
+                 "belonging_self", "belonging_others",
+                 "physical_safety", "self_advocacy",
+                 "information_resources_safety")){
   
   # Progress message
-  message("Making graph for ", focal_site)
+  message("Graphs for '", agree_q, "'")
   
-  # Make graph
-  plot <- plot_bar_stack(df = dplyr::filter(res_v2, site %in% c("Network", focal_site)), 
-                         focal_q = "general_productivity", 
-                         answers = names(agree_cols), colors = agree_cols); plot
+  # Tweak delimeter for graphs
+  agree_q_dash <- gsub(pattern = "_", replacement = "-", x = agree_q)
+  
+  # Make a network-wide version
+  res_v2 %>% 
+    plot_bar_stack(df = ., focal_q = agree_q, 
+                   answers = names(agree_cols), colors = agree_cols) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
   
   # Export locally
-  ggsave(filename = file.path("graphs", paste0("general-productivity_", focal_site, ".png")),
-         height = 6, width = 6, units = "in")
+  ggsave(filename = file.path("graphs", "network", paste0(agree_q_dash, "__network.png")),
+         height = 4, width = 8, units = "in")
   
-} # Close loop
+  # Loop across sites
+  for(focal_site in setdiff(sort(unique(res_v2$site)), "Network")){
+    
+    # Progress message
+    message("Making graph for ", focal_site)
+    
+    # Make graph
+    plot <- plot_bar_stack(df = dplyr::filter(res_v2, site %in% c("Network", focal_site)), 
+                           focal_q = agree_q, 
+                           answers = names(agree_cols), colors = agree_cols); plot
+    
+    # Export locally
+    ggsave(filename = file.path("graphs", "sites", 
+                                paste0(agree_q_dash, "_", focal_site, ".png")),
+           height = 6, width = 6, units = "in")
+    
+  } # Close site loop
+} # Close question loop
 
 # Clear environment
-rm(list = c("ord", "focal_site", "plot"))
+rm(list = c("ord", "focal_site", "plot", "agree_q", "agree_q_dash"))
 
 ## ----------------------------- ##
 # Template ----
