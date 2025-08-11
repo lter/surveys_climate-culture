@@ -23,6 +23,13 @@ rm(list = ls()); gc()
 purrr::walk(.x = dir(path = file.path("tools")),
             .f = ~ source(file.path("tools", .x)))
 
+# Answers colors that span questions
+agree_cols <- c("Strongly disagree" = "#78290f",
+                "Disagree" = "#ff7d00",
+                "Neutral" = "#ffecd1",
+                "Agree" = "#15616d",
+                "Strongly agree" = "#001524")
+
 ## ----------------------------- ##
 # Read in Data ----
 ## ----------------------------- ##
@@ -332,19 +339,17 @@ for(focal_site in setdiff(sort(unique(res_v2$site)), "Network")){
 rm(list = c("ord", "focal_site", "plot"))
 
 ## ----------------------------- ##
-# Template ----
+# General Productivity ----
 ## ----------------------------- ##
-
-# Identify preferred order & colors
-ord <- c("" = "#")
 
 # Make a network-wide version
 res_v2 %>% 
-  plot_bar_stack(df = ., focal_q = "fieldwork_duration", answer_colors = ord) +
+  plot_bar_stack(df = ., focal_q = "general_productivity", 
+                 answers = names(agree_cols), colors = agree_cols) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 # Export locally
-ggsave(filename = file.path("graphs", "fieldwork-duration__network.png"),
+ggsave(filename = file.path("graphs", "general-productivity__network.png"),
        height = 4, width = 8, units = "in")
 
 # Loop across sites
@@ -355,11 +360,11 @@ for(focal_site in setdiff(sort(unique(res_v2$site)), "Network")){
   
   # Make graph
   plot <- plot_bar_stack(df = dplyr::filter(res_v2, site %in% c("Network", focal_site)), 
-                         focal_q = "fieldwork_duration",
-                         answer_colors = ord); plot
+                         focal_q = "general_productivity", 
+                         answers = names(agree_cols), colors = agree_cols); plot
   
   # Export locally
-  ggsave(filename = file.path("graphs", paste0("fieldwork-duration_", focal_site, ".png")),
+  ggsave(filename = file.path("graphs", paste0("general-productivity_", focal_site, ".png")),
          height = 6, width = 6, units = "in")
   
 } # Close loop
