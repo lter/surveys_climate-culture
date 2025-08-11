@@ -430,12 +430,75 @@ for(focal_site in setdiff(sort(unique(res_v2$site)), "Network")){
                          answers = names(ord), colors = ord); plot
   
   # Export locally
-  ggsave(filename = file.path("graphs", paste0("site-climate-score_", focal_site, ".png")),
+  ggsave(filename = file.path("graphs", "sites",
+                              paste0("site-climate-score_", focal_site, ".png")),
          height = 6, width = 6, units = "in")
   
 } # Close loop
 
 # Clear environment
 rm(list = c("ord", "focal_site", "plot"))
+
+## ----------------------------- ##
+# Gender Harassment ----
+## ----------------------------- ##
+
+# Identify preferred order & colors
+ord <- c("Prefer not to say" = "#000",
+         "Yes, it happened to me" = "#f95738",
+         "Yes, I witnessed it happening to someone else" = "#ee964b",
+         "Yes, I heard about it happening to someone else" = "#f4d35e",
+         "No" = "#0d3b66")
+
+# Make a network-wide version
+res_v2 %>% 
+  plot_bar_stack(df = ., focal_q = "gender_harassment", 
+                 answers = names(ord), colors = ord) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Export locally
+ggsave(filename = file.path("graphs", "network", "gender-harassment__network.png"),
+       height = 4, width = 10, units = "in")
+
+# Loop across sites
+for(focal_site in setdiff(sort(unique(res_v2$site)), "Network")){
+  
+  # Progress message
+  message("Making graph for ", focal_site)
+  
+  # Make graph
+  plot <- plot_bar_stack(df = dplyr::filter(res_v2, site %in% c("Network", focal_site)), 
+                         focal_q = "gender_harassment", 
+                         answers = names(ord), colors = ord); plot
+  
+  # Export locally
+  ggsave(filename = file.path("graphs", "sites",
+                              paste0("gender-harassment_", focal_site, ".png")),
+         height = 6, width = 10, units = "in")
+  
+} # Close loop
+
+# Clear environment
+rm(list = c("ord", "focal_site", "plot"))
+
+
+
+
+
+# Questions left to graph
+
+supportR::diff_check(old = gsub("_", "-", unique(res_v2$question)),
+                     new = gsub("__network.png", "", dir(path = file.path("graphs", "network"))))
+
+
+
+res_v2 %>% 
+  select(question, answer) %>% 
+  filter(question == "gender_harassment") %>% 
+  distinct()
+
+
+
+
 
 # End ----
