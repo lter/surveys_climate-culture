@@ -567,6 +567,60 @@ for(focal_site in setdiff(sort(unique(res_v2$site)), "Network")){
 rm(list = c("ord", "focal_site", "plot"))
 
 ## ----------------------------- ##
+# Antagonistic Interactions ----
+## ----------------------------- ##
+
+# Identify preferred order & colors
+ord <- c("Very frequently" = "#720026",
+         "Frequently" = "#ce4257",
+         "Occasionally" = "#ff9b54",
+         "Rarely" = "#cbf3f0",
+         "Never" = "#2ec4b6")
+
+# Loop across 'agreement questions'
+## Where allowed answers are conserved across several questions
+for(antag_q in c("external_antagonistic_interactions",
+                 "internal_antagonistic_interactions")){
+  
+  # Progress message
+  message("Graphs for '", antag_q, "'")
+  
+  # Tweak delimeter for graphs
+  antag_q_dash <- gsub(pattern = "_", replacement = "-", x = antag_q)
+  
+  # Make a network-wide version
+  res_v2 %>% 
+    plot_bar_stack(df = ., focal_q = antag_q, 
+                   answers = names(ord), colors = ord) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  
+  # Export locally
+  ggsave(filename = file.path("graphs", "network", paste0(antag_q_dash, "__network.png")),
+         height = 4, width = 8, units = "in")
+  
+  # Loop across sites
+  for(focal_site in setdiff(sort(unique(res_v2$site)), "Network")){
+    
+    # Progress message
+    message("Making graph for ", focal_site)
+    
+    # Make graph
+    plot <- plot_bar_stack(df = dplyr::filter(res_v2, site %in% c("Network", focal_site)), 
+                           focal_q = antag_q, 
+                           answers = names(ord), colors = ord); plot
+    
+    # Export locally
+    ggsave(filename = file.path("graphs", "sites", 
+                                paste0(antag_q_dash, "_", focal_site, ".png")),
+           height = 6, width = 6, units = "in")
+    
+  } # Close site loop
+} # Close question loop
+
+# Clear environment
+rm(list = c("focal_site", "plot", "antag_q", "antag_q_dash"))
+
+## ----------------------------- ##
 # Diagnostic ----
 ## ----------------------------- ##
 
@@ -578,7 +632,8 @@ supportR::diff_check(old = gsub("_", "-", unique(res_v2$question)),
 # Answers within a particular question
 res_v2 %>% 
   select(question, answer) %>% 
-  filter(question == "field_safety_plan") %>% 
+  filter(question %in% c("external_antagonistic_interactions",
+                         "internal_antagonistic_interactions")) %>% 
   distinct()
 
 
