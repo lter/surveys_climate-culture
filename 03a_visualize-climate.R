@@ -481,20 +481,104 @@ for(focal_site in setdiff(sort(unique(res_v2$site)), "Network")){
 # Clear environment
 rm(list = c("ord", "focal_site", "plot"))
 
+## ----------------------------- ##
+# Accomodations ----
+## ----------------------------- ##
 
+# Identify preferred order & colors
+ord <- c("Prefer not to say" = "#000",
+         "No- I wouldn't feel comfortable" = "#147df5",
+         "Unsure" = "#feb204",
+         "Yes- but I wouldn't know where to start" = "#a5bf12",
+         "Yes- and I would know how to do so" = "#38601d",
+         "Other" = "gray80")
 
+# Make a network-wide version
+res_v2 %>% 
+  plot_bar_stack(df = ., focal_q = "accomodations", 
+                 answers = names(ord), colors = ord) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Export locally
+ggsave(filename = file.path("graphs", "network", "accomodations__network.png"),
+       height = 4, width = 10, units = "in")
+
+# Loop across sites
+for(focal_site in setdiff(sort(unique(res_v2$site)), "Network")){
+  
+  # Progress message
+  message("Making graph for ", focal_site)
+  
+  # Make graph
+  plot <- plot_bar_stack(df = dplyr::filter(res_v2, site %in% c("Network", focal_site)), 
+                         focal_q = "accomodations", 
+                         answers = names(ord), colors = ord); plot
+  
+  # Export locally
+  ggsave(filename = file.path("graphs", "sites",
+                              paste0("accomodations_", focal_site, ".png")),
+         height = 6, width = 10, units = "in")
+  
+} # Close loop
+
+# Clear environment
+rm(list = c("ord", "focal_site", "plot"))
+
+## ----------------------------- ##
+# Field Safety Plan ----
+## ----------------------------- ##
+
+# Identify preferred order & colors
+ord <- c("Prefer not to say" = "#000",
+         "No" = "#ffa62b",
+         "Unsure" = "#ede7e3",
+         "Yes" = "#82c0cc",
+         "Other" = "gray80")
+
+# Make a network-wide version
+res_v2 %>% 
+  plot_bar_stack(df = ., focal_q = "field_safety_plan", 
+                 answers = names(ord), colors = ord) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Export locally
+ggsave(filename = file.path("graphs", "network", "field-safety-plan__network.png"),
+       height = 4, width = 10, units = "in")
+
+# Loop across sites
+for(focal_site in setdiff(sort(unique(res_v2$site)), "Network")){
+  
+  # Progress message
+  message("Making graph for ", focal_site)
+  
+  # Make graph
+  plot <- plot_bar_stack(df = dplyr::filter(res_v2, site %in% c("Network", focal_site)), 
+                         focal_q = "field_safety_plan", 
+                         answers = names(ord), colors = ord); plot
+  
+  # Export locally
+  ggsave(filename = file.path("graphs", "sites",
+                              paste0("field-safety-plan_", focal_site, ".png")),
+         height = 6, width = 10, units = "in")
+  
+} # Close loop
+
+# Clear environment
+rm(list = c("ord", "focal_site", "plot"))
+
+## ----------------------------- ##
+# Diagnostic ----
+## ----------------------------- ##
 
 
 # Questions left to graph
-
 supportR::diff_check(old = gsub("_", "-", unique(res_v2$question)),
                      new = gsub("__network.png", "", dir(path = file.path("graphs", "network"))))
 
-
-
+# Answers within a particular question
 res_v2 %>% 
   select(question, answer) %>% 
-  filter(question == "gender_harassment") %>% 
+  filter(question == "field_safety_plan") %>% 
   distinct()
 
 
