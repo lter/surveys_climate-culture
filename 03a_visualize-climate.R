@@ -69,6 +69,8 @@ res_v2 <- dplyr::bind_rows(res_v1, res_net) %>%
     answer == "Graduate student (supervisory role*)" ~ "Grad student (supervisor)",
     answer == "Research technician/research assistant" ~ "Research tech",
     answer == "Undergraduate student" ~ "Undergrad",
+    ## Years with LTER
+    answer == "More than 10 years" ~ "> 10 years",
     # answer == "" ~ "",
     ## Otherwise, use answer as-is
     T ~ answer))
@@ -293,11 +295,16 @@ rm(list = c("ord", "focal_site", "plot"))
 ## ----------------------------- ##
 
 # Identify preferred order & colors
-ord <- c("" = "#")
+ord <- c("< 1 year" = "#caf0f8",
+         "2-5 years" = "#90e0ef",
+         "6-10 years" = "#0096c7",
+         "> 10 years" = "#023e8a",
+         "Prefer not to answer" = "#000")
 
 # Make a network-wide version
 res_v2 %>% 
-  plot_bar_stack(df = ., focal_q = "years_with_lter", answer_colors = ord) +
+  plot_bar_stack(df = ., focal_q = "years_with_lter", 
+                 answers = names(ord), colors = ord) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 # Export locally
@@ -312,8 +319,8 @@ for(focal_site in setdiff(sort(unique(res_v2$site)), "Network")){
   
   # Make graph
   plot <- plot_bar_stack(df = dplyr::filter(res_v2, site %in% c("Network", focal_site)), 
-                         focal_q = "years_with_lter",
-                         answer_colors = ord); plot
+                         focal_q = "years_with_lter", 
+                         answers = names(ord), colors = ord); plot
   
   # Export locally
   ggsave(filename = file.path("graphs", paste0("years-with-lter_", focal_site, ".png")),
