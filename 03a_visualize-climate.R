@@ -390,22 +390,32 @@ for(agree_q in c("general_productivity", "general_wellbeing",
 } # Close question loop
 
 # Clear environment
-rm(list = c("ord", "focal_site", "plot", "agree_q", "agree_q_dash"))
+rm(list = c("focal_site", "plot", "agree_q", "agree_q_dash"))
 
 ## ----------------------------- ##
-# Template ----
+# Site Climate Score ----
 ## ----------------------------- ##
 
 # Identify preferred order & colors
-ord <- c("" = "#")
+ord <- c("1" = "#9b2226",
+         "2" = "#ae2012",
+         "3" = "#bb3e03",
+         "4" = "#ca6702",
+         "5" = "#ee9b00",
+         "6" = "#e9d8a6",
+         "7" = "#94d2bd",
+         "8" = "#0a9396",
+         "9" = "#005f73",
+         "10" = "#001219")
 
 # Make a network-wide version
 res_v2 %>% 
-  plot_bar_stack(df = ., focal_q = "fieldwork_duration", answer_colors = ord) +
+  plot_bar_stack(df = ., focal_q = "site_climate_score", 
+                 answers = names(ord), colors = ord) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 # Export locally
-ggsave(filename = file.path("graphs", "fieldwork-duration__network.png"),
+ggsave(filename = file.path("graphs", "network", "site-climate-score__network.png"),
        height = 4, width = 8, units = "in")
 
 # Loop across sites
@@ -416,21 +426,16 @@ for(focal_site in setdiff(sort(unique(res_v2$site)), "Network")){
   
   # Make graph
   plot <- plot_bar_stack(df = dplyr::filter(res_v2, site %in% c("Network", focal_site)), 
-                         focal_q = "fieldwork_duration",
-                         answer_colors = ord); plot
+                         focal_q = "site_climate_score", 
+                         answers = names(ord), colors = ord); plot
   
   # Export locally
-  ggsave(filename = file.path("graphs", paste0("fieldwork-duration_", focal_site, ".png")),
+  ggsave(filename = file.path("graphs", paste0("site-climate-score_", focal_site, ".png")),
          height = 6, width = 6, units = "in")
   
 } # Close loop
 
 # Clear environment
 rm(list = c("ord", "focal_site", "plot"))
-
-
-
-
-
 
 # End ----
