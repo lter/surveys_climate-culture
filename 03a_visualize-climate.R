@@ -58,8 +58,20 @@ res_v2 <- dplyr::bind_rows(res_v1, res_net) %>%
   # Make 'network' the first factor level
   dplyr::mutate(site = factor(site, levels = c("Network", setdiff(sort(site), "Network")))) %>% 
   # Do any needed tidying of particular answers
-  dplyr::mutate(answer = ifelse(answer == "I don't participate in this type of data collection",
-                                yes = "0 weeks", no = answer))
+  dplyr::mutate(answer = dplyr::case_when(
+    ## Intense data collection
+    answer == "I don't participate in this type of data collection" ~ "0 weeks",
+    ## LTER role
+    answer == "Administrative staff" ~ "Admin",
+    answer == "Information manager" ~ "IM",
+    answer == "Education/communication staff" ~ "Education/Communication",
+    answer == "Graduate student (non-supervisory role)" ~ "Grad student (non-supervisor)",
+    answer == "Graduate student (supervisory role*)" ~ "Grad student (supervisor)",
+    answer == "Research technician/research assistant" ~ "Research tech",
+    answer == "Undergraduate student" ~ "Undergrad",
+    # answer == "" ~ "",
+    ## Otherwise, use answer as-is
+    T ~ answer))
 
 # Check that out
 sort(unique(res_v2$site))
@@ -161,7 +173,8 @@ ord <- c("Other" = "gray80",
 
 # Make a network-wide version
 res_v2 %>% 
-  plot_bar_stack(df = ., focal_q = "fieldwork_duration", answer_colors = ord) +
+  plot_bar_stack(df = ., focal_q = "fieldwork_duration", 
+                 answers = names(ord), colors = ord) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 # Export locally
@@ -177,7 +190,7 @@ for(focal_site in setdiff(sort(unique(res_v2$site)), "Network")){
   # Make graph
   plot <- plot_bar_stack(df = dplyr::filter(res_v2, site %in% c("Network", focal_site)), 
                          focal_q = "fieldwork_duration",
-                         answer_colors = ord); plot
+                         answers = names(ord), colors = ord); plot
   
   # Export locally
   ggsave(filename = file.path("graphs", paste0("fieldwork-duration_", focal_site, ".png")),
@@ -201,7 +214,8 @@ ord <- c("Other" = "gray80",
 
 # Make a network-wide version
 res_v2 %>% 
-  plot_bar_stack(df = ., focal_q = "contact_time", answer_colors = ord) +
+  plot_bar_stack(df = ., focal_q = "contact_time",
+                 answers = names(ord), colors = ord) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 # Export locally
@@ -217,7 +231,7 @@ for(focal_site in setdiff(sort(unique(res_v2$site)), "Network")){
   # Make graph
   plot <- plot_bar_stack(df = dplyr::filter(res_v2, site %in% c("Network", focal_site)), 
                          focal_q = "contact_time",
-                         answer_colors = ord); plot
+                         answers = names(ord), colors = ord); plot
   
   # Export locally
   ggsave(filename = file.path("graphs", paste0("contact-time_", focal_site, ".png")),
@@ -233,17 +247,22 @@ rm(list = c("ord", "focal_site", "plot"))
 ## ----------------------------- ##
 
 # Identify preferred order & colors
-ord <- c("" = "#")
-
-res_v2 %>% 
-  filter(question == "lter_role") %>% 
-  select(question, answer) %>% 
-  distinct()
-
+ord <- c("Other" = "gray80",
+         "Education/Communication" = "#264653",
+         "IM" = "#2a9d8f",
+         "Admin" = "#fff",
+         "Volunteer" = "#e9c46a",
+         "Research tech" = "#e76f51",
+         "Undergrad" = "#dad7cd",
+         "Grad student (non-supervisor)" = "#a3b18a",
+         "Grad student (supervisor)" = "#588157",
+         "Postdoc" = "#3a5a40",
+         "Investigator" = "#344e41",
+         "Prefer not to answer" = "#000")
 
 # Make a network-wide version
 res_v2 %>% 
-  plot_bar_stack(df = ., focal_q = "lter_role", answer_colors = ord) +
+  plot_bar_stack(df = ., focal_q = "lter_role", answers = names(ord)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 # Export locally
@@ -258,8 +277,7 @@ for(focal_site in setdiff(sort(unique(res_v2$site)), "Network")){
   
   # Make graph
   plot <- plot_bar_stack(df = dplyr::filter(res_v2, site %in% c("Network", focal_site)), 
-                         focal_q = "lter_role",
-                         answer_colors = ord); plot
+                         focal_q = "lter_role", answers = names(ord)); plot
   
   # Export locally
   ggsave(filename = file.path("graphs", paste0("lter-role_", focal_site, ".png")),
