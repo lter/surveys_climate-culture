@@ -19,6 +19,10 @@ librarian::shelf(tidyverse)
 # Clear environment
 rm(list = ls()); gc()
 
+# Load custom function(s)
+purrr::walk(.x = dir(path = file.path("tools")),
+            .f = ~ source(file.path("tools", .x)))
+
 ## ----------------------------- ##
 # Read in Data ----
 ## ----------------------------- ##
@@ -52,7 +56,10 @@ dplyr::glimpse(res_net)
 # Combine with other result data
 res_v2 <- dplyr::bind_rows(res_v1, res_net) %>% 
   # Make 'network' the first factor level
-  dplyr::mutate(site = factor(site, levels = c("Network", setdiff(sort(site), "Network"))))
+  dplyr::mutate(site = factor(site, levels = c("Network", setdiff(sort(site), "Network")))) %>% 
+  # Do any needed tidying of particular answers
+  dplyr::mutate(answer = ifelse(answer == "I don't participate in this type of data collection",
+                                yes = "0 weeks", no = answer))
 
 # Check that out
 sort(unique(res_v2$site))
@@ -152,56 +159,25 @@ ord <- c("Other" = "gray80",
          "1-3 months" = "#bb3e03",
          "Longer" = "#540b0e")
 
-# Prepare data
-df_prep <- res_v2 %>% 
-  dplyr::filter(question == "fieldwork_duration") %>% 
-  dplyr::mutate(answer = ifelse(answer == "I don't participate in this type of data collection",
-                                yes = "0 weeks", no = answer)) %>% 
-  dplyr::mutate(answer = factor(answer, levels = rev(names(ord))))
-
-# Check structure
-dplyr::glimpse(df_prep)
-
 # Make a network-wide version
-ggplot(df_prep, aes(x = site, y = percent, fill = answer, color = "x")) +
-  geom_bar(stat = "identity") +
-  scale_color_manual(values = "#000") +
-  scale_fill_manual(values = ord) +
-  labs(y = "Percent Responses") +
-  guides(color = "none") +
-  theme_bw() +
-  theme(legend.position = "right",
-        legend.title = element_blank(),
-        axis.title.x = element_blank(),
-        axis.title.y = element_text(size = 12),
-        axis.text.x = element_text(size = 12, angle = 90, hjust = 1),
-        axis.text.y = element_text(size = 10))
+res_v2 %>% 
+  plot_bar_stack(df = ., focal_q = "fieldwork_duration", answer_colors = ord) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 # Export locally
 ggsave(filename = file.path("graphs", "fieldwork-duration__network.png"),
        height = 4, width = 8, units = "in")
 
 # Loop across sites
-for(focal_site in setdiff(sort(unique(df_prep$site)), "Network")){
+for(focal_site in setdiff(sort(unique(res_v2$site)), "Network")){
   
   # Progress message
   message("Making graph for ", focal_site)
   
   # Make graph
-  plot <- ggplot(dplyr::filter(df_prep, site %in% c("Network", focal_site)), 
-                      aes(x = site, y = percent, fill = answer, color = "x")) +
-    geom_bar(stat = "identity") +
-    scale_color_manual(values = "#000") +
-    scale_fill_manual(values = ord) +
-    labs(y = "Percent Responses") +
-    guides(color = "none") +
-    theme_bw() +
-    theme(legend.position = "right",
-          legend.title = element_blank(),
-          axis.title.x = element_blank(),
-          axis.title.y = element_text(size = 12),
-          axis.text.x = element_text(size = 12),
-          axis.text.y = element_text(size = 10)); plot
+  plot <- plot_bar_stack(df = dplyr::filter(res_v2, site %in% c("Network", focal_site)), 
+                         focal_q = "fieldwork_duration",
+                         answer_colors = ord); plot
   
   # Export locally
   ggsave(filename = file.path("graphs", paste0("fieldwork-duration_", focal_site, ".png")),
