@@ -55,7 +55,7 @@ plot_bar_stack <- function(df = NULL, focal_q = NULL, answers = NULL, colors = N
   # If colors is not NULL, add manual colors
   if(is.null(colors) != TRUE){
     p <- p +
-      scale_fill_manual(values = ord)
+      scale_fill_manual(values = colors)
   }
   
   # Return the graph
