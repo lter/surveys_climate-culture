@@ -1,4 +1,15 @@
-
+#' @title Stacked Barplot of Percent Responses by Site
+#'
+#' @description Creates a stacked barplot for questions with mutually-exclusive answer categories. Vertical axis is percent and horizontal is site. Answer order and color are inherited from one of the arguments
+#' 
+#' @param df (data.frame-like) Table of survey responses containing (at least) the following columns: 'site', 'question', 'answer', and 'percent'
+#' @param focal_q (character) Question within the 'question' column of `df` for which a plot is desired
+#' @param answer_colors (named character) Vector of colors where the vector names correspond exactly to the answer text for the focal question
+#' 
+#' @return (ggplot) Stacked barplot for the desired question
+#' 
+#' @importFrom magrittr %>%
+#' 
 plot_bar_stack <- function(df = NULL, focal_q = NULL, answer_colors = NULL){
   
   # Error checks for 'df'
