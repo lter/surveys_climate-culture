@@ -435,6 +435,48 @@ for(focal_site in setdiff(sort(unique(res_v2$site)), "Network")){
 rm(list = c("ord", "focal_site", "plot"))
 
 ## ----------------------------- ##
+# Gender Identity ----
+## ----------------------------- ##
+
+# Identify preferred order & colors
+ord <- c("Prefer not to say" = "#000",
+         "Man" = "#d90368",
+         "Non-binary" = "#ffd400",
+         "Woman" = "#147df5",
+         "Other" = "gray80")
+
+# Make a network-wide version
+res_v2 %>% 
+  plot_bar_stack(df = ., focal_q = "gender_identity", 
+                 answers = names(ord), colors = ord) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Export locally
+ggsave(filename = file.path("graphs", "network", "gender-identity__network.png"),
+       height = 4, width = 10, units = "in")
+
+# Loop across sites
+for(focal_site in setdiff(sort(unique(res_v2$site)), "Network")){
+  
+  # Progress message
+  message("Making graph for ", focal_site)
+  
+  # Make graph
+  plot <- plot_bar_stack(df = dplyr::filter(res_v2, site %in% c("Network", focal_site)), 
+                         focal_q = "gender_identity", 
+                         answers = names(ord), colors = ord); plot
+  
+  # Export locally
+  ggsave(filename = file.path("graphs", "sites",
+                              paste0("gender-identity_", focal_site, ".png")),
+         height = 6, width = 10, units = "in")
+  
+} # Close loop
+
+# Clear environment
+rm(list = c("ord", "focal_site", "plot"))
+
+## ----------------------------- ##
 # Gender Harassment ----
 ## ----------------------------- ##
 
@@ -637,9 +679,57 @@ for(antag_q in c("external_antagonistic_interactions",
 rm(list = c("focal_site", "plot", "antag_q", "antag_q_dash"))
 
 ## ----------------------------- ##
-# Diagnostic ----
+# Antagonistic Interaction Stage ----
 ## ----------------------------- ##
 
+# Identify preferred order & colors
+ord <- c("Prefer not to say" = "#000",
+         "Unknown" = "#fff",
+         "External community" = "#f26419",
+         "Visitor" = "#f6ae2d",
+         "Staff (Non-LTER)" = "#86bbd8",
+         "Staff (LTER)" = "#33658a",
+         "Undergraduate" = "#e0aaff",
+         "Grad Student" = "#c77dff",
+         "Postdoc" = "#7b2cbf",
+         "Resident researchers" = "#5a189a",
+         "PI team" = "#3c096c",
+         "Other" = "gray80")
+
+# Make a network-wide version
+res_v2 %>% 
+  plot_bar_stack(df = ., focal_q = "antagonistic_interaction_stage", 
+                 answers = names(ord), colors = ord) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Export locally
+ggsave(filename = file.path("graphs", "network", "antagonistic-interaction-stage__network.png"),
+       height = 4, width = 10, units = "in")
+
+# Loop across sites
+for(focal_site in setdiff(sort(unique(res_v2$site)), "Network")){
+  
+  # Progress message
+  message("Making graph for ", focal_site)
+  
+  # Make graph
+  plot <- plot_bar_stack(df = dplyr::filter(res_v2, site %in% c("Network", focal_site)), 
+                         focal_q = "antagonistic_interaction_stage", 
+                         answers = names(ord), colors = ord); plot
+  
+  # Export locally
+  ggsave(filename = file.path("graphs", "sites",
+                              paste0("antagonistic-interaction-stage_", focal_site, ".png")),
+         height = 6, width = 10, units = "in")
+  
+} # Close loop
+
+# Clear environment
+rm(list = c("ord", "focal_site", "plot"))
+
+## ----------------------------- ##
+# Diagnostic ----
+## ----------------------------- ##
 
 # Questions left to graph
 supportR::diff_check(old = gsub("_", "-", unique(res_v2$question)),
@@ -648,7 +738,7 @@ supportR::diff_check(old = gsub("_", "-", unique(res_v2$question)),
 # Answers within a particular question
 res_v2 %>% 
   select(question, answer) %>% 
-  filter(question %in% c("marginalized_identity")) %>% 
+  filter(question %in% c("antagonistic_interaction_stage")) %>% 
   distinct()
 
 
