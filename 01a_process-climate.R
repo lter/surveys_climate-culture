@@ -148,14 +148,97 @@ clim_v4 %>%
 dplyr::glimpse(clim_v4)
 
 ## ----------------------------- ##
+# Quantify Antagonistic Ixn Stages ----
+## ----------------------------- ##
+
+# Survey had a 'select all that apply' question for activities
+sort(unique(clim_v3$antagonistic_interactions_stage))
+
+# Want to separate and quantify
+clim_v5 <- clim_v4 %>% 
+  # Generate columns for each activity type
+  dplyr::mutate(
+    ## Don't know
+    antagonistic_stage_unknown = ifelse(stringr::str_detect(
+      string = antagonistic_interactions_stage, pattern = "Don’t know"),
+      yes = 1, no = 0),
+    ## External community member
+    antagonistic_stage_external = ifelse(stringr::str_detect(
+      string = antagonistic_interactions_stage, pattern = "External community member"),
+      yes = 1, no = 0),
+    ## Non-LTER staff
+    antagonistic_stage_nonlterstaff = ifelse(stringr::str_detect(
+      string = antagonistic_interactions_stage, pattern = "Non-LTER staff"),
+      yes = 1, no = 0),
+    ## LTER staff
+    antagonistic_stage_lterstaff = ifelse(stringr::str_detect(
+      string = antagonistic_interactions_stage, pattern = "LTER staff"),
+      yes = 1, no = 0),
+    ## Visiting faculty/researcher
+    antagonistic_stage_visitor = ifelse(stringr::str_detect(
+      string = antagonistic_interactions_stage, pattern = "Visiting faculty/researcher"),
+      yes = 1, no = 0),
+    ## Other resident faculty and researchers
+    antagonistic_stage_residents = ifelse(stringr::str_detect(
+      string = antagonistic_interactions_stage,
+      pattern = "Other resident faculty and researchers"),
+      yes = 1, no = 0),
+    ## Undergraduate student
+    antagonistic_stage_undergrad = ifelse(stringr::str_detect(
+      string = antagonistic_interactions_stage,
+      pattern = "Undergraduate student"),
+      yes = 1, no = 0),
+    ## Graduate student
+    antagonistic_stage_grad = ifelse(stringr::str_detect(
+      string = antagonistic_interactions_stage,
+      pattern = "Graduate student"),
+      yes = 1, no = 0),
+    ## Postdoctoral scientist
+    antagonistic_stage_postdoc = ifelse(stringr::str_detect(
+      string = antagonistic_interactions_stage,
+      pattern = "Postdoctoral scientist"),
+      yes = 1, no = 0),
+    ## PI team (lead PI and Co PIs)
+    antagonistic_stage_pi = ifelse(stringr::str_detect(
+      string = antagonistic_interactions_stage,
+      pattern = "PI team"),
+      yes = 1, no = 0),
+    ## Prefer not to say
+    antagonistic_stage_prefernotsay = ifelse(stringr::str_detect(
+      string = antagonistic_interactions_stage,
+      pattern = "Prefer not to say"),
+      yes = 1, no = 0),
+    ## Prefer not to say
+    antagonistic_stage_other = ifelse(stringr::str_detect(
+      string = antagonistic_interactions_stage,
+      pattern = "Other"),
+      yes = 1, no = 0),
+    ## Then add them after the original column
+    .after = antagonistic_interactions_stage) %>% 
+  # Remove bad partial string match counts
+  dplyr::mutate(
+    antagonistic_stage_other = antagonistic_stage_other - antagonistic_stage_residents,
+    antagonistic_stage_lterstaff = antagonistic_stage_lterstaff - antagonistic_stage_nonlterstaff
+    )
+
+# Check new categories
+clim_v5 %>% 
+  dplyr::select(antagonistic_interactions_stage, dplyr::starts_with("antagonistic_stage_")) %>% 
+  dplyr::distinct() %>% 
+  dplyr::glimpse()
+
+# General structure check
+dplyr::glimpse(clim_v5)
+
+## ----------------------------- ##
 # Check/Repair Sites ----
 ## ----------------------------- ##
 
 # What sites are in the data?
-sort(unique(clim_v4$site))
+sort(unique(clim_v5$site))
 
 # Want to extract site abbreviations (for graphs)
-clim_v5 <- clim_v4 %>% 
+clim_v6 <- clim_v5 %>% 
   # Resolve "Other" entry (just one response had this)
   dplyr::mutate(site = ifelse(site == "Other",
                               # Response in 'site other' column: "pie and gce"
@@ -170,31 +253,31 @@ clim_v5 <- clim_v4 %>%
   dplyr::relocate(site, site_name, .before = response_id)
 
 # What sites are left?
-sort(unique(clim_v5$site))
+sort(unique(clim_v6$site))
 
 # Check structure
-dplyr::glimpse(clim_v5)
+dplyr::glimpse(clim_v6)
 
 ## ----------------------------- ##
 # Fix Categorical Missing Values ----
 ## ----------------------------- ##
 
 # Need to fill missing values in some columns
-clim_v6 <- clim_v5 %>% 
+clim_v7 <- clim_v6 %>% 
   # Antagonistic interactions
   dplyr::mutate(antagonistic_interactions_stage = ifelse(is.na(antagonistic_interactions_stage),
                                                          yes = "No antagonistic interactions",
                                                          no = antagonistic_interactions_stage))
 
 # Check structure
-dplyr::glimpse(clim_v6)
+dplyr::glimpse(clim_v7)
 
 ## ----------------------------- ##
 # Export ----
 ## ----------------------------- ##
 
 # Make a final object
-clim_v99 <- clim_v6
+clim_v99 <- clim_v7
 
 # Export locally
 write.csv(x = clim_v99, row.names = F, na = '',
