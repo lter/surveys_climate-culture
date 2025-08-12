@@ -782,6 +782,6 @@ for(freq_q in c("frequency_assistance", "frequency_courtesy",
 } # Close question loop
 
 # Clear environment
-rm(list = c("focal_site", "plot", "freq_q", "freq_q_dash"))
+rm(list = c("ord", "focal_site", "plot", "freq_q", "freq_q_dash"))
 
 # End ----
