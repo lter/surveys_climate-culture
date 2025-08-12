@@ -491,8 +491,11 @@ ord <- c("Prefer not to say" = "#000",
 # Loop across questions with the above answers
 for(know_q in c("accomodations", "reporting")){
   
-  # Message
+  # Progress message
   message("Graphs for '", know_q, "'")
+  
+  # Tweak delimeter for graphs
+  know_q_dash <- gsub(pattern = "_", replacement = "-", x = know_q)
   
   # Make a network-wide version
   res_v2 %>% 
@@ -501,7 +504,7 @@ for(know_q in c("accomodations", "reporting")){
     theme(axis.text.x = element_text(angle = 45, hjust = 1))
   
   # Export locally
-  ggsave(filename = file.path("graphs", "network", paste0(know_q, "__network.png")),
+  ggsave(filename = file.path("graphs", "network", paste0(know_q_dash, "__network.png")),
          height = 4, width = 10, units = "in")
   
   # Loop across sites
@@ -517,17 +520,17 @@ for(know_q in c("accomodations", "reporting")){
     
     # Export locally
     ggsave(filename = file.path("graphs", "sites",
-                                paste0(know_q, "_", focal_site, ".png")),
+                                paste0(know_q_dash, "_", focal_site, ".png")),
            height = 6, width = 10, units = "in")
     
   } # Close site loop
 } # Close question loop
 
 # Clear environment
-rm(list = c("ord", "focal_site", "plot", "know_q"))
+rm(list = c("ord", "focal_site", "plot", "know_q", "know_q_dash"))
 
 ## ----------------------------- ##
-# Field Safety Plan ----
+# Field Safety Plan / Marginalized Identity ----
 ## ----------------------------- ##
 
 # Identify preferred order & colors
@@ -537,36 +540,47 @@ ord <- c("Prefer not to say" = "#000",
          "Yes" = "#82c0cc",
          "Other" = "gray80")
 
-# Make a network-wide version
-res_v2 %>% 
-  plot_bar_stack(df = ., focal_q = "field_safety_plan", 
-                 answers = names(ord), colors = ord) +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-# Export locally
-ggsave(filename = file.path("graphs", "network", "field-safety-plan__network.png"),
-       height = 4, width = 10, units = "in")
-
-# Loop across sites
-for(focal_site in setdiff(sort(unique(res_v2$site)), "Network")){
+# Iterate across questions that use these answers
+for(yn_q in c("field_safety_plan", "marginalized_identity")){
   
   # Progress message
-  message("Making graph for ", focal_site)
+  message("Graphs for '", yn_q, "'")
   
-  # Make graph
-  plot <- plot_bar_stack(df = dplyr::filter(res_v2, site %in% c("Network", focal_site)), 
-                         focal_q = "field_safety_plan", 
-                         answers = names(ord), colors = ord); plot
+  # Tweak delimeter for graphs
+  yn_q_dash <- gsub(pattern = "_", replacement = "-", x = yn_q)
+  
+  # Make a network-wide version
+  res_v2 %>% 
+    plot_bar_stack(df = ., focal_q = yn_q, 
+                   answers = names(ord), colors = ord) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
   
   # Export locally
-  ggsave(filename = file.path("graphs", "sites",
-                              paste0("field-safety-plan_", focal_site, ".png")),
-         height = 6, width = 10, units = "in")
+  ggsave(filename = file.path("graphs", "network", paste0(yn_q_dash, "__network.png")),
+         height = 4, width = 10, units = "in")
   
-} # Close loop
+  
+  # Loop across sites
+  for(focal_site in setdiff(sort(unique(res_v2$site)), "Network")){
+    
+    # Progress message
+    message("Making graph for ", focal_site)
+    
+    # Make graph
+    plot <- plot_bar_stack(df = dplyr::filter(res_v2, site %in% c("Network", focal_site)), 
+                           focal_q = yn_q, 
+                           answers = names(ord), colors = ord); plot
+    
+    # Export locally
+    ggsave(filename = file.path("graphs", "sites",
+                                paste0(yn_q_dash, "_", focal_site, ".png")),
+           height = 6, width = 10, units = "in")
+    
+  } # Close site loop
+} # Close question loop
 
 # Clear environment
-rm(list = c("ord", "focal_site", "plot"))
+rm(list = c("ord", "focal_site", "plot", "yn_q", "yn_q_dash"))
 
 ## ----------------------------- ##
 # Antagonistic Interactions ----
@@ -634,7 +648,7 @@ supportR::diff_check(old = gsub("_", "-", unique(res_v2$question)),
 # Answers within a particular question
 res_v2 %>% 
   select(question, answer) %>% 
-  filter(question %in% c("reporting")) %>% 
+  filter(question %in% c("marginalized_identity")) %>% 
   distinct()
 
 
