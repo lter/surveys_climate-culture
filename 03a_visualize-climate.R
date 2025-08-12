@@ -784,23 +784,4 @@ for(freq_q in c("frequency_assistance", "frequency_courtesy",
 # Clear environment
 rm(list = c("focal_site", "plot", "freq_q", "freq_q_dash"))
 
-## ----------------------------- ##
-# Diagnostic ----
-## ----------------------------- ##
-
-# Questions left to graph
-supportR::diff_check(old = gsub("_", "-", unique(res_v2$question)),
-                     new = gsub("__network.png", "", dir(path = file.path("graphs", "network"))))
-
-# Answers within a particular question
-res_v2 %>% 
-  select(question, answer) %>% 
-  # filter(question %in% c("antagonistic_interaction_stage")) %>% 
-  filter(str_detect(string = question, pattern = "frequency_")) %>% 
-  distinct()
-
-
-
-
-
 # End ----
