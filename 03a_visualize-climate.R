@@ -788,31 +788,58 @@ rm(list = c("ord", "focal_site", "plot", "freq_q", "freq_q_dash"))
 # Composite Scores ----
 ## ----------------------------- ##
 
+# Site colors
+site_cols <- c("AND" = "#386641", "ARC" = "#dda15e", "BLE" = "#005f73", 
+               "BNZ" = "#386641", "CAP" = "#ffc8dd", "CCE" = "#0a9396", 
+               "CDR" = "#bc6c25", "FCE" = "#0a9396", "GCE" = "#0a9396", 
+               "HBR" = "#386641", "HFR" = "#386641", "JRN" = "#bc6c25", 
+               "KBS" = "#a7c957", "KNZ" = "#a7c957", "LUQ" = "#386641", 
+               "MCM" = "#94d2bd", "MCR" = "#0a9396", "MSP" = "#ffc8dd", 
+               "NES" = "#005f73", "NGA" = "#005f73", "NTL" = "#94d2bd", 
+               "NWT" = "#dda15e", "PAL" = "#005f73", "PIE" = "#0a9396", 
+               "SBC" = "#0a9396", "SEV" = "#bc6c25", "VCR" = "#0a9396", 
+               "Other" = "#3a0ca3")
+
+# Site shapes
+site_shps <- c("AND" = 21, "ARC" = 21, "BLE" = 21, "BNZ" = 22, 
+               "CAP" = 21, "CCE" = 21, "CDR" = 21, "FCE" = 22, 
+               "GCE" = 23, "HBR" = 23, "HFR" = 24, "JRN" = 22, 
+               "KBS" = 21, "KNZ" = 22, "LUQ" = 25, "MCM" = 21, 
+               "MCR" = 24, "MSP" = 22, "NES" = 22, "NGA" = 23, 
+               "NTL" = 22, "NWT" = 22, "PAL" = 24, "PIE" = 25, 
+               "SBC" = 22, "SEV" = 23, "VCR" = 23, "Other" = 21)
+
+
 names(comp_v1)
 
-
 focal_comp <- "composite_belonging"
-
+focal_dash <- gsub("_", "-", focal_comp)
 focal_lab <- gsub("composite_", "", focal_comp)
 
 ggplot(comp_v1, aes(x = 'x', y = .data[[paste0(focal_comp, "_score")]])) +
   geom_hline(yintercept = unique(comp_v1[[paste0(focal_comp, "_perc80")]]),
              linetype = 2) +
   # geom_boxplot(alpha = 0) +
-  geom_violin(alpha = 0) +
-  geom_point(aes(fill = .data[[paste0(focal_comp, "_site_ambig")]]),
-             pch = 21, size = 3, alpha = 0.8,
-             position = position_dodge(width = 0.2)) +
+  # geom_violin(alpha = 0) +
+  geom_jitter(aes(fill = .data[[paste0(focal_comp, "_site_ambig")]],
+                  shape = .data[[paste0(focal_comp, "_site_ambig")]]),
+              size = 4, alpha = 0.8, width = 0.1, height = 0) +
   labs(y = paste0("Composite Score: ", stringr::str_to_title(gsub("_", " ", focal_lab)))) +
+  scale_fill_manual(values = site_cols) +
+  scale_shape_manual(values = site_shps) +
   theme_bw() +
-  theme(legend.position = "right",
+  theme(legend.position = "inside",
+        legend.position.inside = c(0.8, 0.35),
+        legend.background = element_blank(),
         legend.title = element_blank(),
         axis.title.x = element_blank(),
         axis.title.y = element_text(size = 12),
         axis.text.x = element_blank(),
         axis.text.y = element_text(size = 10))
 
-  
+# Export locally
+ggsave(filename = file.path("graphs", "network", paste0(focal_dash, "__network.png")),
+       height = 3, width = 3, units = "in")
 
 
 # End ----
