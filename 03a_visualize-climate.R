@@ -23,13 +23,6 @@ rm(list = ls()); gc()
 purrr::walk(.x = dir(path = file.path("tools")),
             .f = ~ source(file.path("tools", .x)))
 
-# Answers colors that span questions
-agree_cols <- c("Strongly disagree" = "#78290f",
-                "Disagree" = "#ff7d00",
-                "Neutral" = "#ffecd1",
-                "Agree" = "#15616d",
-                "Strongly agree" = "#001524")
-
 ## ----------------------------- ##
 # Read in Data ----
 ## ----------------------------- ##
@@ -347,6 +340,13 @@ rm(list = c("ord", "focal_site", "plot"))
 # Agreement Questions ----
 ## ----------------------------- ##
 
+# Answers colors that span agreement questions
+agree_cols <- c("Strongly disagree" = "#78290f",
+                "Disagree" = "#ff7d00",
+                "Neutral" = "#ffecd1",
+                "Agree" = "#15616d",
+                "Strongly agree" = "#001524")
+
 # Loop across 'agreement questions'
 ## Where allowed answers are conserved across several questions
 for(agree_q in c("general_productivity", "general_wellbeing", 
@@ -390,23 +390,18 @@ for(agree_q in c("general_productivity", "general_wellbeing",
 } # Close question loop
 
 # Clear environment
-rm(list = c("focal_site", "plot", "agree_q", "agree_q_dash"))
+rm(list = c("focal_site", "plot", "agree_q", "agree_q_dash", "agree_cols"))
 
 ## ----------------------------- ##
 # Site Climate Score ----
 ## ----------------------------- ##
 
 # Identify preferred order & colors
-ord <- c("1" = "#9b2226",
-         "2" = "#ae2012",
-         "3" = "#bb3e03",
-         "4" = "#ca6702",
-         "5" = "#ee9b00",
-         "6" = "#e9d8a6",
-         "7" = "#94d2bd",
-         "8" = "#0a9396",
-         "9" = "#005f73",
-         "10" = "#001219")
+ord <- c("1" = "#9b2226", "2" = "#ae2012", 
+         "3" = "#bb3e03", "4" = "#ca6702", 
+         "5" = "#ee9b00", "6" = "#e9d8a6",
+         "7" = "#94d2bd", "8" = "#0a9396", 
+         "9" = "#005f73", "10" = "#001219")
 
 # Make a network-wide version
 res_v2 %>% 
