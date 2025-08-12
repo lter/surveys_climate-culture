@@ -784,4 +784,35 @@ for(freq_q in c("frequency_assistance", "frequency_courtesy",
 # Clear environment
 rm(list = c("ord", "focal_site", "plot", "freq_q", "freq_q_dash"))
 
+## ----------------------------- ##
+# Composite Scores ----
+## ----------------------------- ##
+
+names(comp_v1)
+
+
+focal_comp <- "composite_belonging"
+
+focal_lab <- gsub("composite_", "", focal_comp)
+
+ggplot(comp_v1, aes(x = 'x', y = .data[[paste0(focal_comp, "_score")]])) +
+  geom_hline(yintercept = unique(comp_v1[[paste0(focal_comp, "_perc80")]]),
+             linetype = 2) +
+  # geom_boxplot(alpha = 0) +
+  geom_violin(alpha = 0) +
+  geom_point(aes(fill = .data[[paste0(focal_comp, "_site_ambig")]]),
+             pch = 21, size = 3, alpha = 0.8,
+             position = position_dodge(width = 0.2)) +
+  labs(y = paste0("Composite Score: ", stringr::str_to_title(gsub("_", " ", focal_lab)))) +
+  theme_bw() +
+  theme(legend.position = "right",
+        legend.title = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_text(size = 12),
+        axis.text.x = element_blank(),
+        axis.text.y = element_text(size = 10))
+
+  
+
+
 # End ----
