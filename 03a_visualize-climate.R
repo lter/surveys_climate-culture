@@ -629,6 +629,7 @@ rm(list = c("ord", "focal_site", "plot", "yn_q", "yn_q_dash"))
 ## ----------------------------- ##
 
 # Identify preferred order & colors
+## These 'bad frequency' questions get a different color scheme than 'good frequency'
 ord <- c("Very frequently" = "#720026",
          "Frequently" = "#ce4257",
          "Occasionally" = "#ff9b54",
@@ -728,6 +729,62 @@ for(focal_site in setdiff(sort(unique(res_v2$site)), "Network")){
 rm(list = c("ord", "focal_site", "plot"))
 
 ## ----------------------------- ##
+# 'Good' Frequency Questions ----
+## ----------------------------- ##
+
+# Identify preferred order & colors
+## These 'good frequency' questions get a different color scheme than 'bad frequency'
+ord <- c("Never" = "#004b23",
+         "Rarely" = "#008000",
+         "Occasionally" = "#38b000",
+         "Frequently" = "#70e000",
+         "Very frequently" = "#ccff33")
+
+# Loop across 'agreement questions'
+## Where allowed answers are conserved across several questions
+for(freq_q in c("frequency_assistance", "frequency_courtesy", 
+                "frequency_interest", "frequency_praise", 
+                "frequency_public_recognition")){
+  
+  # Progress message
+  message("Graphs for '", freq_q, "'")
+  
+  # Tweak delimeter for graphs
+  freq_q_dash <- gsub(pattern = "_", replacement = "-", x = freq_q)
+  
+  # Make a network-wide version
+  res_v2 %>% 
+    plot_bar_stack(df = ., focal_q = freq_q, 
+                   answers = names(ord), colors = ord) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  
+  # Export locally
+  ggsave(filename = file.path("graphs", "network", paste0(freq_q_dash, "__network.png")),
+         height = 4, width = 8, units = "in")
+  
+  # Loop across sites
+  for(focal_site in setdiff(sort(unique(res_v2$site)), "Network")){
+    
+    # Progress message
+    message("Making graph for ", focal_site)
+    
+    # Make graph
+    plot <- plot_bar_stack(df = dplyr::filter(res_v2, site %in% c("Network", focal_site)), 
+                           focal_q = freq_q, 
+                           answers = names(ord), colors = ord); plot
+    
+    # Export locally
+    ggsave(filename = file.path("graphs", "sites", 
+                                paste0(freq_q_dash, "_", focal_site, ".png")),
+           height = 6, width = 6, units = "in")
+    
+  } # Close site loop
+} # Close question loop
+
+# Clear environment
+rm(list = c("focal_site", "plot", "freq_q", "freq_q_dash"))
+
+## ----------------------------- ##
 # Diagnostic ----
 ## ----------------------------- ##
 
@@ -738,7 +795,8 @@ supportR::diff_check(old = gsub("_", "-", unique(res_v2$question)),
 # Answers within a particular question
 res_v2 %>% 
   select(question, answer) %>% 
-  filter(question %in% c("antagonistic_interaction_stage")) %>% 
+  # filter(question %in% c("antagonistic_interaction_stage")) %>% 
+  filter(str_detect(string = question, pattern = "frequency_")) %>% 
   distinct()
 
 
