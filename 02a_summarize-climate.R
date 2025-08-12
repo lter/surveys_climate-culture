@@ -62,6 +62,23 @@ questions <- c("fieldwork_duration", "contact_time",
 supportR::diff_check(old = names(clim_v1), new = questions)
 
 ## ----------------------------- ##
+# Streamline (Some) Answers ----
+## ----------------------------- ##
+
+# Some answers need to be streamlined so that percents are calculated right
+## Esp. gender identity where idiosyncratic answers would de-anonymize respondents
+clim_v2 <- clim_v1 %>% 
+  dplyr::mutate(gender_identity = dplyr::case_when(
+    ## Gender identity
+    ### Need to streamline to avoid 'outing' single respondents in site-level data
+    gender_identity == "Woman,Non-binary" ~ "Non-binary",
+    gender_identity %in% c("Non-binary,Other", "Man,Other") ~ "Other",
+    T ~ gender_identity))
+  
+# Check what remains
+supportR::count(vec = clim_v2$gender_identity)
+
+## ----------------------------- ##
 # Summarize Data ----
 ## ----------------------------- ##
 
@@ -77,20 +94,20 @@ for(scope in c("Network", "Site-Specific")){
   message("Summarizing data for ", scope)
   
   # Duplicate data
-  clim_v2 <- clim_v1
+  clim_v3 <- clim_v2
   
   # Coerce site to "Network" for all responses to use same grouping variables within/across sites
   if(scope == "Network"){
-    clim_v2$site <- "Network"
+    clim_v3$site <- "Network"
   }
   
   # Remove LNO & missing sites from site-specific aggregation (too few responses)
   if(scope != "Network"){
-    clim_v2 <- dplyr::filter(clim_v2, site != "LNO" & !is.na(site))
+    clim_v3 <- dplyr::filter(clim_v3, site != "LNO" & !is.na(site))
   }
   
   # Summarize activity counts
-  result_list[[paste0(scope, "_activity")]] <- clim_v2 %>% 
+  result_list[[paste0(scope, "_activity")]] <- clim_v3 %>% 
     # Pare down to only needed columns
     dplyr::select(site, dplyr::starts_with("activity_")) %>%
     dplyr::select(-activity_other) %>% 
@@ -126,8 +143,50 @@ for(scope in c("Network", "Site-Specific")){
   # Check structure
   # dplyr::glimpse(result_list[[paste0(scope, "_activity")]])
   
+  # Summarize activity counts
+  result_list[[paste0(scope, "_antag_stage")]] <- clim_v3 %>% 
+    # Pare down to only needed columns
+    dplyr::select(site, dplyr::starts_with("antagonistic_stage_")) %>%
+    # Reshape to long format
+    tidyr::pivot_longer(cols = dplyr::starts_with("antagonistic_stage_"),
+                        names_to = "category",
+                        values_to = "response") %>% 
+    # Expand question/answer columns
+    dplyr::mutate(answer = dplyr::case_when(
+      category == "antagonistic_stage_unknown" ~ "Unknown",
+      category == "antagonistic_stage_external" ~ "External community",
+      category == "antagonistic_stage_nonlterstaff" ~ "Staff (Non-LTER)",
+      category == "antagonistic_stage_lterstaff" ~ "Staff (LTER)",
+      category == "antagonistic_stage_visitor" ~ "Visitor",
+      category == "antagonistic_stage_residents" ~ "Resident researchers",
+      category == "antagonistic_stage_undergrad" ~ "Undergraduate",
+      category == "antagonistic_stage_grad" ~ "Grad Student",
+      category == "antagonistic_stage_postdoc" ~ "Postdoc",
+      category == "antagonistic_stage_pi" ~ "PI team",
+      category == "antagonistic_stage_other" ~ "Other",
+      category == "antagonistic_stage_prefernotsay" ~ "Prefer not to say",
+      T ~ NA),
+      question = "antagonistic_interaction_stage") %>% 
+    # Drop NA responses
+    dplyr::filter(!is.na(response)) %>% 
+    # Sum within answers
+    dplyr::group_by(site, question, answer) %>% 
+    dplyr::summarize(ct = sum(response, na.rm = T),
+                     .groups = "keep") %>% 
+    dplyr::ungroup() %>% 
+    # Calculate total and percent
+    dplyr::group_by(site, question) %>% 
+    dplyr::mutate(total = sum(ct, na.rm = T),
+                  percent = (ct / total) * 100) %>% 
+    dplyr::ungroup() %>% 
+    # Reorder slightly
+    dplyr::relocate(total, .before = ct)
+  
+  # Check structure
+  # dplyr::glimpse(result_list[[paste0(scope, "_antag_stage")]])
+
   # Calculate climate score means
-  score_list[[paste0(scope, "_climate")]] <- clim_v2 %>% 
+  score_list[[paste0(scope, "_climate")]] <- clim_v3 %>% 
     dplyr::group_by(site) %>% 
     dplyr::summarize(climate_score_mean = mean(site_climate_score, na.rm = T),
                      .groups = "keep") %>% 
@@ -138,10 +197,10 @@ for(scope in c("Network", "Site-Specific")){
   
   # Empty list for storing question-specific summaries
   q_list <- purrr::map(.x = c(questions, "site_climate_score"),
-                       .f = ~ calc_percents(df = clim_v2, q = .x))
+                       .f = ~ calc_percents(df = clim_v3, q = .x))
   
   # Check that out
-  dplyr::glimpse(q_list[c(1:3)])
+  # dplyr::glimpse(q_list[c(1:3)])
   
   # Unlist question-specific dataframe and add to higher-level list
   result_list[[paste0(scope, "_qs")]] <- q_list %>% 
