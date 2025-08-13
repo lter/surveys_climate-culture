@@ -14,7 +14,7 @@
 ## ----------------------------- ##
 
 # Load libraries
-librarian::shelf(tidyverse)
+librarian::shelf(tidyverse, supportR, cowplot)
 
 # Clear environment
 rm(list = ls()); gc()
@@ -785,7 +785,7 @@ for(freq_q in c("frequency_assistance", "frequency_courtesy",
 rm(list = c("ord", "focal_site", "plot", "freq_q", "freq_q_dash"))
 
 ## ----------------------------- ##
-# Composite Scores ----
+# Composite Scores (Network) ----
 ## ----------------------------- ##
 
 # Site colors
@@ -809,37 +809,151 @@ site_shps <- c("AND" = 21, "ARC" = 21, "BLE" = 21, "BNZ" = 22,
                "NTL" = 22, "NWT" = 22, "PAL" = 24, "PIE" = 25, 
                "SBC" = 22, "SEV" = 23, "VCR" = 23, "Other" = 21)
 
+# Make a list for storing outputs
+comp_plot_list <- list()
 
-names(comp_v1)
+# Loop across composite score questions
+for(focal_comp in paste0("composite_", c("belonging", "climate", "prosocial",
+                                         "safety_general", "safety_social", 
+                                         "trust"))){
+  # focal_comp <- "composite_belonging"
+  
+  # Progress message
+  message("Graphs for '", focal_comp, "'")
+  
+  # Get some where the delimeter is changed
+  focal_dash <- gsub(pattern = "_", replacement = "-", x = focal_comp)
+  focal_lab <- gsub(pattern = "composite_", replacement = "", x = focal_comp)
+  
+  # Prepare the data
+  comp_prep <- comp_v1 %>% 
+    # Pare down columns and rename more generically
+    dplyr::select(site, dplyr::starts_with(focal_comp)) %>% 
+    supportR::safe_rename(data = ., bad_names = names(.),
+                          good_names = gsub(pattern = paste0(focal_comp, "_"), 
+                                            replacement = "", x = names(.))) %>% 
+    # Order the 'ambiguous site' column by score (high to low)
+    dplyr::arrange(-score) %>% 
+    dplyr::mutate(site_ambig = factor(site_ambig, levels = unique(site_ambig)))
+  
+  # Actually make the graph and add to list
+  comp_plot_list[[focal_comp]] <- ggplot(comp_prep, aes(x = 'x', y = score)) +
+    # Add horizontal lines for 80th percentile and network average
+    geom_hline(yintercept = unique(comp_prep$perc80), linetype = 2) +
+    geom_hline(yintercept = unique(comp_prep$network_score), linetype = 1) +
+    # Add points for site means (only >80th percentile sites are named)
+    geom_jitter(aes(fill = site_ambig, shape = site_ambig),
+                size = 4, alpha = 0.8, width = 0.1, height = 0) +
+    # Customize labels / theme elements
+    labs(y = paste0("Composite Score: ", stringr::str_to_title(gsub("_", " ", focal_lab)))) +
+    scale_fill_manual(values = site_cols) +
+    scale_shape_manual(values = site_shps) +
+    theme_bw() +
+    theme(legend.position = "inside",
+          legend.position.inside = c(0.8, 0.3),
+          legend.background = element_blank(),
+          legend.title = element_blank(),
+          axis.title.x = element_blank(),
+          axis.title.y = element_text(size = 12),
+          axis.text.x = element_blank(),
+          axis.text.y = element_text(size = 10))
+  
+  # Assmemble the figure
+  cowplot::plot_grid(plotlist = comp_plot_list, nrow = 2, labels = "AUTO")
+  
+  # Export locally
+  ggsave(filename = file.path("graphs", "network", paste0("composite-scores__network.png")),
+         height = 10, width = 10, units = "in")
+}
 
-focal_comp <- "composite_belonging"
-focal_dash <- gsub("_", "-", focal_comp)
-focal_lab <- gsub("composite_", "", focal_comp)
+# Clear environment
+rm(list = c("comp_prep", "comp_plot_list", "site_shps",
+            "focal_comp", "focal_dash", "focal_lab"))
 
-ggplot(comp_v1, aes(x = 'x', y = .data[[paste0(focal_comp, "_score")]])) +
-  geom_hline(yintercept = unique(comp_v1[[paste0(focal_comp, "_perc80")]]),
-             linetype = 2) +
-  # geom_boxplot(alpha = 0) +
-  # geom_violin(alpha = 0) +
-  geom_jitter(aes(fill = .data[[paste0(focal_comp, "_site_ambig")]],
-                  shape = .data[[paste0(focal_comp, "_site_ambig")]]),
-              size = 4, alpha = 0.8, width = 0.1, height = 0) +
-  labs(y = paste0("Composite Score: ", stringr::str_to_title(gsub("_", " ", focal_lab)))) +
-  scale_fill_manual(values = site_cols) +
-  scale_shape_manual(values = site_shps) +
-  theme_bw() +
-  theme(legend.position = "inside",
-        legend.position.inside = c(0.8, 0.35),
-        legend.background = element_blank(),
-        legend.title = element_blank(),
-        axis.title.x = element_blank(),
-        axis.title.y = element_text(size = 12),
-        axis.text.x = element_blank(),
-        axis.text.y = element_text(size = 10))
+## ----------------------------- ##
+# Composite Scores (Sites) ----
+## ----------------------------- ##
 
-# Export locally
-ggsave(filename = file.path("graphs", "network", paste0(focal_dash, "__network.png")),
-       height = 3, width = 3, units = "in")
+# Use different shapes for this one (all circles except 'other')
+site_shps <- c("AND" = 21, "ARC" = 21, "BLE" = 21, "BNZ" = 21, 
+               "CAP" = 21, "CCE" = 21, "CDR" = 21, "FCE" = 21, 
+               "GCE" = 21, "HBR" = 21, "HFR" = 21, "JRN" = 21, 
+               "KBS" = 21, "KNZ" = 21, "LUQ" = 21, "MCM" = 21, 
+               "MCR" = 21, "MSP" = 21, "NES" = 21, "NGA" = 21, 
+               "NTL" = 21, "NWT" = 21, "PAL" = 21, "PIE" = 21, 
+               "SBC" = 21, "SEV" = 21, "VCR" = 21,  "Other" = 23)
 
+# Make a list for storing outputs
+comp_site_list <- list()
+
+# Loop across sites
+for(focal_site in sort(unique(comp_v1$site))){
+  # focal_site <- "AND"
+  
+  # Progress message
+  message("Composite score graphs for ", focal_site)
+  
+  # Make the 'site' column ambiguous except for the focal site
+  comp_v2 <- comp_v1 %>% 
+    dplyr::mutate(site = ifelse(site == focal_site,
+                                yes = focal_site, no = "Other")) %>% 
+    dplyr::mutate(site = factor(site, levels = c(focal_site, "Other")))
+  
+  # Now loop across composite score questions
+  for(focal_comp in paste0("composite_", c("belonging", "climate", "prosocial",
+                                           "safety_general", "safety_social", 
+                                           "trust"))){
+    # focal_comp <- "composite_belonging"
+    
+    # Progress message
+    message("Graphs for '", focal_comp, "'")
+    
+    # Get some where the delimeter is changed
+    focal_dash <- gsub(pattern = "_", replacement = "-", x = focal_comp)
+    focal_lab <- gsub(pattern = "composite_", replacement = "", x = focal_comp)
+    
+    # Prepare the data
+    comp_prep <- comp_v2 %>% 
+      # Pare down columns and rename more generically
+      dplyr::select(site, dplyr::starts_with(focal_comp)) %>% 
+      supportR::safe_rename(data = ., bad_names = names(.),
+                            good_names = gsub(pattern = paste0(focal_comp, "_"), 
+                                              replacement = "", x = names(.)))
+    
+    # Actually make the graph and add to list
+    comp_site_list[[focal_comp]] <- ggplot(comp_prep, aes(x = 'x', y = score)) +
+      # Add horizontal lines for network average
+      geom_hline(yintercept = unique(comp_prep$network_score), linetype = 1) +
+      # Add points for site means (only >80th percentile sites are named)
+      geom_jitter(aes(fill = site, shape = site), size = 4,
+                  alpha = 0.8, width = 0.1, height = 0) +
+      # Customize labels / theme elements
+      labs(y = paste0("Composite Score: ", stringr::str_to_title(gsub("_", " ", focal_lab)))) +
+      scale_fill_manual(values = site_cols) +
+      scale_shape_manual(values = site_shps) +
+      theme_bw() +
+      theme(legend.position = "inside",
+            legend.position.inside = c(0.8, 0.3),
+            legend.background = element_blank(),
+            legend.title = element_blank(),
+            axis.title.x = element_blank(),
+            axis.title.y = element_text(size = 12),
+            axis.text.x = element_blank(),
+            axis.text.y = element_text(size = 10))
+    
+    # Assmemble the figure
+    cowplot::plot_grid(plotlist = comp_site_list, nrow = 2, labels = "AUTO")
+    
+    # Export locally
+    ggsave(filename = file.path("graphs", "sites", 
+                                paste0("composite-scores__", focal_site, ".png")),
+           height = 10, width = 10, units = "in")
+    
+  } # Close composite loop
+} # Close site loop
+
+# Clear environment
+rm(list = c("comp_prep", "comp_site_list", "site_shps",
+            "focal_comp", "focal_dash", "focal_lab"))
 
 # End ----
