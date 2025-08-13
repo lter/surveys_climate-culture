@@ -161,7 +161,7 @@ for(focal_site in sort(unique(df_prep$site))){
 } # Close loop
 
 # Clear environment
-rm(list = c("ord", "df_prep", "df_net", "focal_site"))
+rm(list = c("ord", "df_prep", "df_net", "focal_site")); gc()
 
 ## ----------------------------- ##
 # Intense Data Collection ----
@@ -203,7 +203,7 @@ for(focal_site in setdiff(sort(unique(res_v2$site)), "Network")){
 } # Close loop
 
 # Clear environment
-rm(list = c("ord", "focal_site", "plot"))
+rm(list = c("ord", "focal_site", "plot")); gc()
 
 ## ----------------------------- ##
 # Non-Data Collection Community ----
@@ -245,7 +245,7 @@ for(focal_site in setdiff(sort(unique(res_v2$site)), "Network")){
 } # Close loop
 
 # Clear environment
-rm(list = c("ord", "focal_site", "plot"))
+rm(list = c("ord", "focal_site", "plot")); gc()
 
 ## ----------------------------- ##
 # LTER Role ----
@@ -292,7 +292,7 @@ for(focal_site in setdiff(sort(unique(res_v2$site)), "Network")){
 } # Close loop
 
 # Clear environment
-rm(list = c("ord", "focal_site", "plot"))
+rm(list = c("ord", "focal_site", "plot")); gc()
 
 ## ----------------------------- ##
 # LTER Years ----
@@ -334,7 +334,7 @@ for(focal_site in setdiff(sort(unique(res_v2$site)), "Network")){
 } # Close loop
 
 # Clear environment
-rm(list = c("ord", "focal_site", "plot"))
+rm(list = c("ord", "focal_site", "plot")); gc()
 
 ## ----------------------------- ##
 # Agreement Questions ----
@@ -390,7 +390,7 @@ for(agree_q in c("general_productivity", "general_wellbeing",
 } # Close question loop
 
 # Clear environment
-rm(list = c("focal_site", "plot", "agree_q", "agree_q_dash", "agree_cols"))
+rm(list = c("focal_site", "plot", "agree_q", "agree_q_dash", "agree_cols")); gc()
 
 ## ----------------------------- ##
 # Site Climate Score ----
@@ -432,7 +432,7 @@ for(focal_site in setdiff(sort(unique(res_v2$site)), "Network")){
 } # Close loop
 
 # Clear environment
-rm(list = c("ord", "focal_site", "plot"))
+rm(list = c("ord", "focal_site", "plot")); gc()
 
 ## ----------------------------- ##
 # Gender Identity ----
@@ -474,7 +474,7 @@ for(focal_site in setdiff(sort(unique(res_v2$site)), "Network")){
 } # Close loop
 
 # Clear environment
-rm(list = c("ord", "focal_site", "plot"))
+rm(list = c("ord", "focal_site", "plot")); gc()
 
 ## ----------------------------- ##
 # Gender Harassment ----
@@ -516,7 +516,7 @@ for(focal_site in setdiff(sort(unique(res_v2$site)), "Network")){
 } # Close loop
 
 # Clear environment
-rm(list = c("ord", "focal_site", "plot"))
+rm(list = c("ord", "focal_site", "plot")); gc()
 
 ## ----------------------------- ##
 # Accomodations / Reporting ----
@@ -569,7 +569,7 @@ for(know_q in c("accomodations", "reporting")){
 } # Close question loop
 
 # Clear environment
-rm(list = c("ord", "focal_site", "plot", "know_q", "know_q_dash"))
+rm(list = c("ord", "focal_site", "plot", "know_q", "know_q_dash")); gc()
 
 ## ----------------------------- ##
 # Field Safety Plan / Marginalized Identity ----
@@ -622,7 +622,7 @@ for(yn_q in c("field_safety_plan", "marginalized_identity")){
 } # Close question loop
 
 # Clear environment
-rm(list = c("ord", "focal_site", "plot", "yn_q", "yn_q_dash"))
+rm(list = c("ord", "focal_site", "plot", "yn_q", "yn_q_dash")); gc()
 
 ## ----------------------------- ##
 # Antagonistic Interactions ----
@@ -677,7 +677,7 @@ for(antag_q in c("external_antagonistic_interactions",
 } # Close question loop
 
 # Clear environment
-rm(list = c("focal_site", "plot", "antag_q", "antag_q_dash"))
+rm(list = c("focal_site", "plot", "antag_q", "antag_q_dash")); gc()
 
 ## ----------------------------- ##
 # Antagonistic Interaction Stage ----
@@ -726,7 +726,7 @@ for(focal_site in setdiff(sort(unique(res_v2$site)), "Network")){
 } # Close loop
 
 # Clear environment
-rm(list = c("ord", "focal_site", "plot"))
+rm(list = c("ord", "focal_site", "plot")); gc()
 
 ## ----------------------------- ##
 # 'Good' Frequency Questions ----
@@ -782,7 +782,7 @@ for(freq_q in c("frequency_assistance", "frequency_courtesy",
 } # Close question loop
 
 # Clear environment
-rm(list = c("ord", "focal_site", "plot", "freq_q", "freq_q_dash"))
+rm(list = c("ord", "focal_site", "plot", "freq_q", "freq_q_dash")); gc()
 
 ## ----------------------------- ##
 # Composite Scores (Network) ----
@@ -868,7 +868,7 @@ for(focal_comp in paste0("composite_", c("belonging", "climate", "prosocial",
 
 # Clear environment
 rm(list = c("comp_prep", "comp_plot_list", "site_shps",
-            "focal_comp", "focal_dash", "focal_lab"))
+            "focal_comp", "focal_dash", "focal_lab")); gc()
 
 ## ----------------------------- ##
 # Composite Scores (Sites) ----
@@ -954,6 +954,6 @@ for(focal_site in sort(unique(comp_v1$site))){
 
 # Clear environment
 rm(list = c("comp_prep", "comp_site_list", "site_shps",
-            "focal_comp", "focal_dash", "focal_lab"))
+            "focal_comp", "focal_dash", "focal_lab")); gc()
 
 # End ----
