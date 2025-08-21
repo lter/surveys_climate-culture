@@ -798,7 +798,7 @@ site_cols <- c("AND" = "#386641", "ARC" = "#dda15e", "BLE" = "#005f73",
                "NES" = "#005f73", "NGA" = "#005f73", "NTL" = "#94d2bd", 
                "NWT" = "#dda15e", "PAL" = "#005f73", "PIE" = "#0a9396", 
                "SBC" = "#0a9396", "SEV" = "#bc6c25", "VCR" = "#0a9396", 
-               "Other" = "#3a0ca3")
+               "Other" = "#fff")
 
 # Site shapes
 site_shps <- c("AND" = 21, "ARC" = 21, "BLE" = 21, "BNZ" = 22, 
@@ -858,13 +858,14 @@ for(focal_comp in paste0("composite_", c("belonging", "climate", "prosocial",
           axis.text.x = element_blank(),
           axis.text.y = element_text(size = 10))
   
-  # Assmemble the figure
-  cowplot::plot_grid(plotlist = comp_plot_list, nrow = 2, labels = "AUTO")
-  
-  # Export locally
-  ggsave(filename = file.path("graphs", "network", paste0("composite-scores__network.png")),
-         height = 10, width = 10, units = "in")
 }
+
+# Assmemble the figure
+cowplot::plot_grid(plotlist = comp_plot_list, nrow = 2, labels = "AUTO")
+
+# Export locally
+ggsave(filename = file.path("graphs", "network", paste0("composite-scores__network.png")),
+       height = 10, width = 10, units = "in")
 
 # Clear environment
 rm(list = c("comp_prep", "comp_plot_list", "site_shps",
@@ -883,12 +884,12 @@ site_shps <- c("AND" = 21, "ARC" = 21, "BLE" = 21, "BNZ" = 21,
                "NTL" = 21, "NWT" = 21, "PAL" = 21, "PIE" = 21, 
                "SBC" = 21, "SEV" = 21, "VCR" = 21,  "Other" = 23)
 
-# Make a list for storing outputs
-comp_site_list <- list()
-
 # Loop across sites
 for(focal_site in sort(unique(comp_v1$site))){
   # focal_site <- "AND"
+
+  # Make a list for storing outputs
+  comp_site_list <- list()
   
   # Progress message
   message("Composite score graphs for ", focal_site)
@@ -941,15 +942,16 @@ for(focal_site in sort(unique(comp_v1$site))){
             axis.text.x = element_blank(),
             axis.text.y = element_text(size = 10))
     
-    # Assmemble the figure
-    cowplot::plot_grid(plotlist = comp_site_list, nrow = 2, labels = "AUTO")
-    
-    # Export locally
-    ggsave(filename = file.path("graphs", "sites", 
-                                paste0("composite-scores__", focal_site, ".png")),
-           height = 10, width = 10, units = "in")
-    
   } # Close composite loop
+  
+  # Assmemble the figure
+  cowplot::plot_grid(plotlist = comp_site_list, nrow = 2, labels = "AUTO")
+  
+  # Export locally
+  ggsave(filename = file.path("graphs", "sites", 
+                              paste0("composite-scores__", focal_site, ".png")),
+         height = 10, width = 10, units = "in")
+  
 } # Close site loop
 
 # Clear environment
