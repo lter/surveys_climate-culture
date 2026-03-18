@@ -1,10 +1,8 @@
 ## ------------------------------------------------------------ ##
-# Climate & Culture - Setup
+# Climate & Culture - Download Inputs
 ## ------------------------------------------------------------ ##
-# Author(s): Nick J Lyon
-
 # Purpose:
-## Create needed folders and download necessary data from Google Drive
+## Download necessary inputs/data from Google Drive
 
 ## ----------------------------- ##
 # Housekeeping ----
@@ -16,14 +14,8 @@ librarian::shelf(tidyverse, googledrive)
 # Clear environment
 rm(list = ls()); gc()
 
-## ----------------------------- ##
-# Make Folder(s) ----
-## ----------------------------- ##
-
-# Make needed folders
-dir.create(path = file.path("data", "raw"), showWarnings = F, recursive = T)
-dir.create(path = file.path("graphs", "network"), showWarnings = F, recursive = T)
-dir.create(path = file.path("graphs", "sites"), showWarnings = F)
+# Get set up
+source(file = file.path("-setup.R"))
 
 ## ----------------------------- ##
 # Download Climate Data ----
