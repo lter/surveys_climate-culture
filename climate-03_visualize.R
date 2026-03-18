@@ -1,8 +1,6 @@
 ## ------------------------------------------------------------ ##
 # Climate & Culture - Visualize Climate/Culture Responses
 ## ------------------------------------------------------------ ##
-# Author(s): Nick J Lyon
-
 # Purpose:
 ## Visualize survey responses with relevant graphs
 
@@ -18,6 +16,9 @@ librarian::shelf(tidyverse, supportR, cowplot)
 
 # Clear environment
 rm(list = ls()); gc()
+
+# Get set up
+source(file = file.path("-setup.R"))
 
 # Load custom function(s)
 purrr::walk(.x = dir(path = file.path("tools")),

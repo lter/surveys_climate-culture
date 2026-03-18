@@ -1,8 +1,6 @@
 ## ------------------------------------------------------------ ##
 # Climate & Culture - Process Climate/Culture Responses
 ## ------------------------------------------------------------ ##
-# Author(s): Nick J Lyon
-
 # Purpose:
 ## Process raw survey responses into a format that is ready for summarization and visualization
 
@@ -18,6 +16,9 @@ librarian::shelf(tidyverse, readxl, ltertools)
 
 # Clear environment
 rm(list = ls()); gc()
+
+# Get set up
+source(file = file.path("-setup.R"))
 
 ## ----------------------------- ##
 # Read in Data ----

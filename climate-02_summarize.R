@@ -1,8 +1,6 @@
 ## ------------------------------------------------------------ ##
 # Climate & Culture - Summarize Climate/Culture Responses
 ## ------------------------------------------------------------ ##
-# Author(s): Nick J Lyon
-
 # Purpose:
 ## Summarize survey responses into a format that is ready for visualization
 
@@ -18,6 +16,9 @@ librarian::shelf(tidyverse, supportR)
 
 # Clear environment
 rm(list = ls()); gc()
+
+# Get set up
+source(file = file.path("-setup.R"))
 
 # Load custom function(s)
 purrr::walk(.x = dir(path = file.path("tools")),
