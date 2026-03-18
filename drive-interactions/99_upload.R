@@ -1,8 +1,6 @@
 ## ------------------------------------------------------------ ##
 # Climate & Culture - Upload Products
 ## ------------------------------------------------------------ ##
-# Author(s): Nick J Lyon
-
 # Purpose:
 ## Upload outputs of (some of) the preceding scripts
 
@@ -18,6 +16,9 @@ librarian::shelf(tidyverse, googledrive)
 
 # Clear environment
 rm(list = ls()); gc()
+
+# Get set up
+source(file = file.path("-setup.R"))
 
 ## ----------------------------- ##
 # Upload Network Graphs ----
