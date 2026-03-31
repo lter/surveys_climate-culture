@@ -21,6 +21,24 @@ rm(list = ls()); gc()
 source(file = file.path("-setup.R"))
 
 ## ----------------------------- ##
+# Upload Tidy Data ----
+## ----------------------------- ##
+
+# Identify local graphs
+(local_data <- dir(path = file.path("data"), pattern = "02a"))
+
+# Identify desired Drive location
+drive_loc <- googledrive::as_id("https://drive.google.com/drive/folders/16IpRaaqMlrb4Bgw8KN7q1Fe1biWHyqbP")
+
+# Upload 'em
+purrr::walk(.x = local_data,
+  .f = ~ googledrive::drive_upload(media = file.path("data", .x),
+    overwrite = T, path = drive_loc))
+
+# Clear environment
+rm(list = ls); gc()
+
+## ----------------------------- ##
 # Upload Network Graphs ----
 ## ----------------------------- ##
 
@@ -39,7 +57,7 @@ purrr::walk(.x = local_graphs,
 rm(list = ls); gc()
 
 ## ----------------------------- ##
-# Upload Network Graphs ----
+# Upload Site Graphs ----
 ## ----------------------------- ##
 
 # Identify local graphs
