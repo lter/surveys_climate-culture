@@ -41,9 +41,10 @@ nms_mod <- vegan::metaMDS(comp_dist, autotransform = FALSE, expand = FALSE, k = 
 
 # Create PCoA ordination (with optional agruments)
 supportR::ordination(mod = pcoa_mod, grps = comp_v02$site, 
-    lty = 2, col = "black")
+    lty = 2, col = "black", x = "topright")
 
 # Create NMS ordination
-supportR::ordination(mod = nms_mod, grps = comp_v02$site)
+supportR::ordination(mod = nms_mod, grps = comp_v02$site, 
+    lty = 2, col = "black", x = "topright")
 
 # End ----
