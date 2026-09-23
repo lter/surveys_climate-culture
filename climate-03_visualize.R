@@ -5,7 +5,7 @@
 ## Visualize survey responses with relevant graphs
 
 # Pre-requisites:
-## Have summarized survey data (can be done with `02a_summarize-climate.R`)
+## Have summarized survey data (can be done with `climate-02_summarize.R`)
 
 ## ----------------------------- ##
 # Housekeeping ----
@@ -22,20 +22,20 @@ source(file = file.path("-setup.R"))
 
 # Load custom function(s)
 purrr::walk(.x = dir(path = file.path("tools")),
-            .f = ~ source(file.path("tools", .x)))
+  .f = ~ source(file.path("tools", .x)))
 
 ## ----------------------------- ##
 # Read in Data ----
 ## ----------------------------- ##
 
 # Read in composite score data
-comp_v1 <- read.csv(file = file.path("data", "02a_composite-scores.csv"))
+comp_v1 <- read.csv(file = file.path("data", "climate-02_composite-scores.csv"))
 
 # Check structure
 dplyr::glimpse(comp_v1)
 
 # Also read in summarized data
-res_v1 <- read.csv(file = file.path("data", "02a_summarized-climate.csv"))
+res_v1 <- read.csv(file = file.path("data", "climate-02_summarized-data.csv"))
 
 # Check structure
 dplyr::glimpse(res_v1)
@@ -74,7 +74,7 @@ res_v2 <- dplyr::bind_rows(res_v1, res_net) %>%
     answer == "More than 10 years" ~ "> 10 years",
     # answer == "" ~ "",
     ## Otherwise, use answer as-is
-    T ~ answer))
+    TRUE ~ answer))
 
 # Check that out
 sort(unique(res_v2$site))
@@ -86,18 +86,18 @@ dplyr::glimpse(res_v2)
 
 # Identify preferred order & colors
 ord <- c("Education or public engagement" = "#fca311",
-         "Virtual events" = "#748cab",
-         "In-person events" = "#1d2d44",
-         "Information management" = "#005f73",
-         "Modeling" = "#94d2bd",
-         "Synthesis" = "#9b5de5",
-         "Lab work" = "#e9d8a6",
-         "Field work (small boats)" = "#ee9b00",
-         "Field work (ship-based)" = "#ca6702",
-         "Field work (land-based)" = "#bb3e03",
-         "Field work (any)" = "#9b2226",
-         "Research" = "#cdb4db",
-         "Administrative duties" = "#dad7cd")
+  "Virtual events" = "#748cab",
+  "In-person events" = "#1d2d44",
+  "Information management" = "#005f73",
+  "Modeling" = "#94d2bd",
+  "Synthesis" = "#9b5de5",
+  "Lab work" = "#e9d8a6",
+  "Field work (small boats)" = "#ee9b00",
+  "Field work (ship-based)" = "#ca6702",
+  "Field work (land-based)" = "#bb3e03",
+  "Field work (any)" = "#9b2226",
+  "Research" = "#cdb4db",
+  "Administrative duties" = "#dad7cd")
 
 # Prepare data
 df_prep <- res_v2 %>% 
@@ -127,7 +127,7 @@ ggplot(data = df_net, aes(x = network_percent, y = answer, fill = answer, color 
         axis.title.y = element_blank())
 
 # Export locally
-ggsave(filename = file.path("graphs", "network", "respondent-activities__network.png"),
+ggsave(filename = file.path("graphs", "network", "climate-03_respondent-activities__network.png"),
        height = 4, width = 6, units = "in")
 
 # Loop across sites
@@ -155,8 +155,7 @@ for(focal_site in sort(unique(df_prep$site))){
           axis.title.y = element_blank())
   
   # Export locally
-  ggsave(filename = file.path("graphs", "sites", 
-                              paste0("respondent-activities_", focal_site, ".png")),
+  ggsave(filename = file.path("graphs", "sites", paste0("climate-03_respondent-activities_", focal_site, ".png")),
          height = 4, width = 6, units = "in")
   
 } # Close loop
@@ -182,7 +181,7 @@ res_v2 %>%
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 # Export locally
-ggsave(filename = file.path("graphs", "network", "fieldwork-duration__network.png"),
+ggsave(filename = file.path("graphs", "network", "climate-03_fieldwork-duration__network.png"),
        height = 4, width = 8, units = "in")
 
 # Loop across sites
@@ -197,8 +196,7 @@ for(focal_site in setdiff(sort(unique(res_v2$site)), "Network")){
                          answers = names(ord), colors = ord); plot
   
   # Export locally
-  ggsave(filename = file.path("graphs", "sites", 
-                              paste0("fieldwork-duration_", focal_site, ".png")),
+  ggsave(filename = file.path("graphs", "sites", paste0("climate-03_fieldwork-duration_", focal_site, ".png")),
          height = 6, width = 6, units = "in")
   
 } # Close loop
@@ -224,7 +222,7 @@ res_v2 %>%
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 # Export locally
-ggsave(filename = file.path("graphs", "network", "contact-time__network.png"),
+ggsave(filename = file.path("graphs", "network", "climate-03_contact-time__network.png"),
        height = 4, width = 8, units = "in")
 
 # Loop across sites
@@ -239,8 +237,7 @@ for(focal_site in setdiff(sort(unique(res_v2$site)), "Network")){
                          answers = names(ord), colors = ord); plot
   
   # Export locally
-  ggsave(filename = file.path("graphs", "sites", 
-                              paste0("contact-time_", focal_site, ".png")),
+  ggsave(filename = file.path("graphs", "sites", paste0("climate-03_contact-time_", focal_site, ".png")),
          height = 6, width = 6, units = "in")
   
 } # Close loop
@@ -272,7 +269,7 @@ res_v2 %>%
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 # Export locally
-ggsave(filename = file.path("graphs", "network", "lter-role__network.png"),
+ggsave(filename = file.path("graphs", "network", "climate-03_lter-role__network.png"),
        height = 4, width = 8, units = "in")
 
 # Loop across sites
@@ -286,8 +283,7 @@ for(focal_site in setdiff(sort(unique(res_v2$site)), "Network")){
                          focal_q = "lter_role", answers = names(ord)); plot
   
   # Export locally
-  ggsave(filename = file.path("graphs", "sites", 
-                              paste0("lter-role_", focal_site, ".png")),
+  ggsave(filename = file.path("graphs", "sites", paste0("climate-03_lter-role_", focal_site, ".png")),
          height = 6, width = 6, units = "in")
   
 } # Close loop
@@ -313,7 +309,7 @@ res_v2 %>%
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 # Export locally
-ggsave(filename = file.path("graphs", "network", "years-with-lter__network.png"),
+ggsave(filename = file.path("graphs", "network", "climate-03_years-with-lter__network.png"),
        height = 4, width = 8, units = "in")
 
 # Loop across sites
@@ -328,8 +324,7 @@ for(focal_site in setdiff(sort(unique(res_v2$site)), "Network")){
                          answers = names(ord), colors = ord); plot
   
   # Export locally
-  ggsave(filename = file.path("graphs", "sites", 
-                              paste0("years-with-lter_", focal_site, ".png")),
+  ggsave(filename = file.path("graphs", "sites", paste0("climate-03_years-with-lter_", focal_site, ".png")),
          height = 6, width = 6, units = "in")
   
 } # Close loop
@@ -383,8 +378,7 @@ for(agree_q in c("general_productivity", "general_wellbeing",
                            answers = names(agree_cols), colors = agree_cols); plot
     
     # Export locally
-    ggsave(filename = file.path("graphs", "sites", 
-                                paste0(agree_q_dash, "_", focal_site, ".png")),
+    ggsave(filename = file.path("graphs", "sites", paste0(agree_q_dash, "_", focal_site, ".png")),
            height = 6, width = 6, units = "in")
     
   } # Close site loop
@@ -411,7 +405,7 @@ res_v2 %>%
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 # Export locally
-ggsave(filename = file.path("graphs", "network", "site-climate-score__network.png"),
+ggsave(filename = file.path("graphs", "network", "climate-03_site-climate-score__network.png"),
        height = 4, width = 8, units = "in")
 
 # Loop across sites
@@ -426,8 +420,7 @@ for(focal_site in setdiff(sort(unique(res_v2$site)), "Network")){
                          answers = names(ord), colors = ord); plot
   
   # Export locally
-  ggsave(filename = file.path("graphs", "sites",
-                              paste0("site-climate-score_", focal_site, ".png")),
+  ggsave(filename = file.path("graphs", "sites", paste0("climate-03_site-climate-score_", focal_site, ".png")),
          height = 6, width = 6, units = "in")
   
 } # Close loop
@@ -453,7 +446,7 @@ res_v2 %>%
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 # Export locally
-ggsave(filename = file.path("graphs", "network", "gender-identity__network.png"),
+ggsave(filename = file.path("graphs", "network", "climate-03_gender-identity__network.png"),
        height = 4, width = 10, units = "in")
 
 # Loop across sites
@@ -468,8 +461,7 @@ for(focal_site in setdiff(sort(unique(res_v2$site)), "Network")){
                          answers = names(ord), colors = ord); plot
   
   # Export locally
-  ggsave(filename = file.path("graphs", "sites",
-                              paste0("gender-identity_", focal_site, ".png")),
+  ggsave(filename = file.path("graphs", "sites", paste0("climate-03_gender-identity_", focal_site, ".png")),
          height = 6, width = 10, units = "in")
   
 } # Close loop
@@ -495,7 +487,7 @@ res_v2 %>%
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 # Export locally
-ggsave(filename = file.path("graphs", "network", "gender-harassment__network.png"),
+ggsave(filename = file.path("graphs", "network", "climate-03_gender-harassment__network.png"),
        height = 4, width = 10, units = "in")
 
 # Loop across sites
@@ -510,8 +502,7 @@ for(focal_site in setdiff(sort(unique(res_v2$site)), "Network")){
                          answers = names(ord), colors = ord); plot
   
   # Export locally
-  ggsave(filename = file.path("graphs", "sites",
-                              paste0("gender-harassment_", focal_site, ".png")),
+  ggsave(filename = file.path("graphs", "sites", paste0("climate-03_gender-harassment_", focal_site, ".png")),
          height = 6, width = 10, units = "in")
   
 } # Close loop
@@ -562,8 +553,7 @@ for(know_q in c("accomodations", "reporting")){
                            answers = names(ord), colors = ord); plot
     
     # Export locally
-    ggsave(filename = file.path("graphs", "sites",
-                                paste0(know_q_dash, "_", focal_site, ".png")),
+    ggsave(filename = file.path("graphs", "sites", paste0(know_q_dash, "_", focal_site, ".png")),
            height = 6, width = 10, units = "in")
     
   } # Close site loop
@@ -615,8 +605,7 @@ for(yn_q in c("field_safety_plan", "marginalized_identity")){
                            answers = names(ord), colors = ord); plot
     
     # Export locally
-    ggsave(filename = file.path("graphs", "sites",
-                                paste0(yn_q_dash, "_", focal_site, ".png")),
+    ggsave(filename = file.path("graphs", "sites", paste0(yn_q_dash, "_", focal_site, ".png")),
            height = 6, width = 10, units = "in")
     
   } # Close site loop
@@ -670,8 +659,7 @@ for(antag_q in c("external_antagonistic_interactions",
                            answers = names(ord), colors = ord); plot
     
     # Export locally
-    ggsave(filename = file.path("graphs", "sites", 
-                                paste0(antag_q_dash, "_", focal_site, ".png")),
+    ggsave(filename = file.path("graphs", "sites", paste0(antag_q_dash, "_", focal_site, ".png")),
            height = 6, width = 6, units = "in")
     
   } # Close site loop
@@ -705,7 +693,7 @@ res_v2 %>%
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 # Export locally
-ggsave(filename = file.path("graphs", "network", "antagonistic-interaction-stage__network.png"),
+ggsave(filename = file.path("graphs", "network", "climate-03_antagonistic-interaction-stage__network.png"),
        height = 4, width = 10, units = "in")
 
 # Loop across sites
@@ -720,8 +708,7 @@ for(focal_site in setdiff(sort(unique(res_v2$site)), "Network")){
                          answers = names(ord), colors = ord); plot
   
   # Export locally
-  ggsave(filename = file.path("graphs", "sites",
-                              paste0("antagonistic-interaction-stage_", focal_site, ".png")),
+  ggsave(filename = file.path("graphs", "sites", paste0("climate-03_antagonistic-interaction-stage_", focal_site, ".png")),
          height = 6, width = 10, units = "in")
   
 } # Close loop
@@ -775,8 +762,7 @@ for(freq_q in c("frequency_assistance", "frequency_courtesy",
                            answers = names(ord), colors = ord); plot
     
     # Export locally
-    ggsave(filename = file.path("graphs", "sites", 
-                                paste0(freq_q_dash, "_", focal_site, ".png")),
+    ggsave(filename = file.path("graphs", "sites", paste0(freq_q_dash, "_", focal_site, ".png")),
            height = 6, width = 6, units = "in")
     
   } # Close site loop
@@ -815,8 +801,7 @@ comp_plot_list <- list()
 
 # Loop across composite score questions
 for(focal_comp in paste0("composite_", c("belonging", "climate", "prosocial",
-                                         "safety_general", "safety_social", 
-                                         "trust"))){
+  "safety_general", "safety_social", "trust"))){
   # focal_comp <- "composite_belonging"
   
   # Progress message
@@ -831,8 +816,7 @@ for(focal_comp in paste0("composite_", c("belonging", "climate", "prosocial",
     # Pare down columns and rename more generically
     dplyr::select(site, dplyr::starts_with(focal_comp)) %>% 
     supportR::safe_rename(data = ., bad_names = names(.),
-                          good_names = gsub(pattern = paste0(focal_comp, "_"), 
-                                            replacement = "", x = names(.))) %>% 
+      good_names = gsub(pattern = paste0(focal_comp, "_"), replacement = "", x = names(.))) %>% 
     # Order the 'ambiguous site' column by score (high to low)
     dplyr::arrange(-score) %>% 
     dplyr::mutate(site_ambig = factor(site_ambig, levels = unique(site_ambig)))
@@ -903,8 +887,7 @@ for(focal_site in sort(unique(comp_v1$site))){
   
   # Now loop across composite score questions
   for(focal_comp in paste0("composite_", c("belonging", "climate", "prosocial",
-                                           "safety_general", "safety_social", 
-                                           "trust"))){
+    "safety_general", "safety_social", "trust"))){
     # focal_comp <- "composite_belonging"
     
     # Progress message
@@ -919,8 +902,7 @@ for(focal_site in sort(unique(comp_v1$site))){
       # Pare down columns and rename more generically
       dplyr::select(site, dplyr::starts_with(focal_comp)) %>% 
       supportR::safe_rename(data = ., bad_names = names(.),
-                            good_names = gsub(pattern = paste0(focal_comp, "_"), 
-                                              replacement = "", x = names(.)))
+        good_names = gsub(pattern = paste0(focal_comp, "_"),  replacement = "", x = names(.)))
     
     # Actually make the graph and add to list
     comp_site_list[[focal_comp]] <- ggplot(comp_prep, aes(x = 'x', y = score)) +
@@ -949,8 +931,7 @@ for(focal_site in sort(unique(comp_v1$site))){
   cowplot::plot_grid(plotlist = comp_site_list, nrow = 2, labels = "AUTO")
   
   # Export locally
-  ggsave(filename = file.path("graphs", "sites", 
-                              paste0("composite-scores__", focal_site, ".png")),
+  ggsave(filename = file.path("graphs", "sites", paste0("climate-03_composite-scores__", focal_site, ".png")),
          height = 10, width = 10, units = "in")
   
 } # Close site loop
