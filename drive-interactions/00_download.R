@@ -4,6 +4,11 @@
 # Purpose:
 ## Download necessary inputs/data from Google Drive
 
+# Pre-requisites:
+## (A) Have access to Drive folders (linked below)
+## (B) Have authenticated `googledrive` R package
+### See tutorial here: https://lter.github.io/scicomp/tutorial_googledrive-pkg.html
+
 ## ----------------------------- ##
 # Housekeeping ----
 ## ----------------------------- ##
