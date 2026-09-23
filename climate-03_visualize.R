@@ -363,7 +363,7 @@ for(agree_q in c("general_productivity", "general_wellbeing",
     theme(axis.text.x = element_text(angle = 45, hjust = 1))
   
   # Export locally
-  ggsave(filename = file.path("graphs", "network", paste0(agree_q_dash, "__network.png")),
+  ggsave(filename = file.path("graphs", "network", paste0("climate-03_", agree_q_dash, "__network.png")),
          height = 4, width = 8, units = "in")
   
   # Loop across sites
@@ -378,7 +378,7 @@ for(agree_q in c("general_productivity", "general_wellbeing",
                            answers = names(agree_cols), colors = agree_cols); plot
     
     # Export locally
-    ggsave(filename = file.path("graphs", "sites", paste0(agree_q_dash, "_", focal_site, ".png")),
+    ggsave(filename = file.path("graphs", "sites", paste0("climate-03_", agree_q_dash, "_", focal_site, ".png")),
            height = 6, width = 6, units = "in")
     
   } # Close site loop
@@ -538,7 +538,7 @@ for(know_q in c("accomodations", "reporting")){
     theme(axis.text.x = element_text(angle = 45, hjust = 1))
   
   # Export locally
-  ggsave(filename = file.path("graphs", "network", paste0(know_q_dash, "__network.png")),
+  ggsave(filename = file.path("graphs", "network", paste0("climate-03_", know_q_dash, "__network.png")),
          height = 4, width = 10, units = "in")
   
   # Loop across sites
@@ -553,7 +553,7 @@ for(know_q in c("accomodations", "reporting")){
                            answers = names(ord), colors = ord); plot
     
     # Export locally
-    ggsave(filename = file.path("graphs", "sites", paste0(know_q_dash, "_", focal_site, ".png")),
+    ggsave(filename = file.path("graphs", "sites", paste0("climate-03_", know_q_dash, "_", focal_site, ".png")),
            height = 6, width = 10, units = "in")
     
   } # Close site loop
@@ -589,7 +589,7 @@ for(yn_q in c("field_safety_plan", "marginalized_identity")){
     theme(axis.text.x = element_text(angle = 45, hjust = 1))
   
   # Export locally
-  ggsave(filename = file.path("graphs", "network", paste0(yn_q_dash, "__network.png")),
+  ggsave(filename = file.path("graphs", "network", paste0("climate-03_", yn_q_dash, "__network.png")),
          height = 4, width = 10, units = "in")
   
   
@@ -605,7 +605,7 @@ for(yn_q in c("field_safety_plan", "marginalized_identity")){
                            answers = names(ord), colors = ord); plot
     
     # Export locally
-    ggsave(filename = file.path("graphs", "sites", paste0(yn_q_dash, "_", focal_site, ".png")),
+    ggsave(filename = file.path("graphs", "sites", paste0("climate-03_", yn_q_dash, "_", focal_site, ".png")),
            height = 6, width = 10, units = "in")
     
   } # Close site loop
@@ -644,7 +644,7 @@ for(antag_q in c("external_antagonistic_interactions",
     theme(axis.text.x = element_text(angle = 45, hjust = 1))
   
   # Export locally
-  ggsave(filename = file.path("graphs", "network", paste0(antag_q_dash, "__network.png")),
+  ggsave(filename = file.path("graphs", "network", paste0("climate-03_", antag_q_dash, "__network.png")),
          height = 4, width = 8, units = "in")
   
   # Loop across sites
@@ -659,7 +659,7 @@ for(antag_q in c("external_antagonistic_interactions",
                            answers = names(ord), colors = ord); plot
     
     # Export locally
-    ggsave(filename = file.path("graphs", "sites", paste0(antag_q_dash, "_", focal_site, ".png")),
+    ggsave(filename = file.path("graphs", "sites", paste0("climate-03_", antag_q_dash, "_", focal_site, ".png")),
            height = 6, width = 6, units = "in")
     
   } # Close site loop
@@ -747,7 +747,7 @@ for(freq_q in c("frequency_assistance", "frequency_courtesy",
     theme(axis.text.x = element_text(angle = 45, hjust = 1))
   
   # Export locally
-  ggsave(filename = file.path("graphs", "network", paste0(freq_q_dash, "__network.png")),
+  ggsave(filename = file.path("graphs", "network", paste0("climate-03_", freq_q_dash, "__network.png")),
          height = 4, width = 8, units = "in")
   
   # Loop across sites
@@ -762,7 +762,7 @@ for(freq_q in c("frequency_assistance", "frequency_courtesy",
                            answers = names(ord), colors = ord); plot
     
     # Export locally
-    ggsave(filename = file.path("graphs", "sites", paste0(freq_q_dash, "_", focal_site, ".png")),
+    ggsave(filename = file.path("graphs", "sites", paste0("climate-03_", freq_q_dash, "_", focal_site, ".png")),
            height = 6, width = 6, units = "in")
     
   } # Close site loop
@@ -849,7 +849,7 @@ for(focal_comp in paste0("composite_", c("belonging", "climate", "prosocial",
 cowplot::plot_grid(plotlist = comp_plot_list, nrow = 2, labels = "AUTO")
 
 # Export locally
-ggsave(filename = file.path("graphs", "network", paste0("composite-scores__network.png")),
+ggsave(filename = file.path("graphs", "network", "climate-03_composite-scores__network.png"),
        height = 10, width = 10, units = "in")
 
 # Clear environment
