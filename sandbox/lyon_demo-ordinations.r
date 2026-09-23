@@ -17,7 +17,7 @@ rm(list = ls()); gc()
 ## ----------------------------------- ##
 
 # Load data
-comp_v01 <- read.csv(file.path("data", "02a_composite-scores.csv"))
+comp_v01 <- read.csv(file.path("data", "climate-02_composite-scores.csv"))
 
 # Check structure
 dplyr::glimpse(comp_v01)
@@ -49,6 +49,6 @@ as.data.frame(pcoa_mod$vectors) %>%
         y = paste0("PC2 (", round(pcoa_mod$values$Relative_eig[2] * 100, digits = 2), "%)")) +
     supportR::theme_lyon()
 
-ggsave(file.path("graphs", "composite-ordination_2026-05-12_pcoa.png"), height = 7, width = 7, units = "in")
+ggsave(file.path("graphs", "lyon_composite-ordination_2026-05-12_pcoa.png"), height = 7, width = 7, units = "in")
 
 # End ----
