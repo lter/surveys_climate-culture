@@ -50,8 +50,8 @@ drive_loc <- googledrive::as_id("https://drive.google.com/drive/folders/1Iiq0cdV
 
 # Upload 'em
 purrr::walk(.x = local_graphs,
-            .f = ~ googledrive::drive_upload(media = file.path("graphs", "network", .x),
-                                             overwrite = T, path = drive_loc))
+  .f = ~ googledrive::drive_upload(media = file.path("graphs", "network", .x),
+    overwrite = TRUE, path = drive_loc))
 
 # Clear environment
 rm(list = ls); gc()
@@ -68,8 +68,8 @@ drive_loc <- googledrive::as_id("https://drive.google.com/drive/folders/1IXQiUP_
 
 # Upload 'em
 purrr::walk(.x = local_graphs,
-            .f = ~ googledrive::drive_upload(media = file.path("graphs", "sites", .x),
-                                             overwrite = T, path = drive_loc))
+  .f = ~ googledrive::drive_upload(media = file.path("graphs", "sites", .x),
+    overwrite = TRUE, path = drive_loc))
 
 # Clear environment
 rm(list = ls); gc()
