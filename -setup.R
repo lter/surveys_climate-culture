@@ -19,9 +19,9 @@ rm(list = ls()); gc()
 ## ----------------------------- ##
 
 # Make needed folders
-dir.create(path = file.path("data", "raw"), showWarnings = F, recursive = T)
-dir.create(path = file.path("graphs", "network"), showWarnings = F, recursive = T)
-dir.create(path = file.path("graphs", "sites"), showWarnings = F)
+dir.create(path = file.path("data", "raw"), showWarnings = FALSE, recursive = TRUE)
+dir.create(path = file.path("graphs", "network"), showWarnings = FALSE, recursive = TRUE)
+dir.create(path = file.path("graphs", "sites"), showWarnings = FALSE)
 
 # End ----
 
