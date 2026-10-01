@@ -49,7 +49,7 @@ local_graphs <- dir(path = file.path("graphs", "network"),
   pattern = "climate-03_")
 
 # Identify desired Drive location
-drive_loc <- googledrive::as_id("https://drive.google.com/drive/folders/1Iiq0cdVplt7jnrG2X-Uuf6yuzW-YaOGb")
+drive_loc <- googledrive::as_id("https://drive.google.com/drive/folders/1rwmRc2_LaD06iidrgmb3Ji8N90aP6Pgs")
 
 # Upload 'em
 purrr::walk(.x = local_graphs,
