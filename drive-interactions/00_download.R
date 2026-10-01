@@ -27,7 +27,7 @@ source(file = file.path("-setup.R"))
 ## ----------------------------- ##
 
 # Identify relevant Drive folder
-drive_url <- googledrive::as_id("https://github.com/lter/surveys_climate-culture")
+drive_url <- googledrive::as_id("https://drive.google.com/drive/folders/1rwmRc2_LaD06iidrgmb3Ji8N90aP6Pgs")
 
 # Identify relevant files' in that folder
 (drive_raw <- googledrive::drive_ls(path = drive_url) %>% 
