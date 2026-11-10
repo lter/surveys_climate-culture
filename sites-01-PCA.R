@@ -11,8 +11,7 @@ library(missMDA)
 library(readxl)
 
 # Read in site characteristics survey dataset
-d <- read_excel("2026 LTER Site Characteristics.xlsx") 
-d <- d[-18,]                     #removing Andrew Brooks (18) in favor of Deron Burkepile (20)
+d <- read_excel("site-characteristics-table.xlsx") 
 
 # Rename columns using number order for ease of use in analysis
 d <- d %>%
@@ -102,7 +101,7 @@ pca_data <- d %>% select(6:8,14:31,37,42,44,45,50,52) %>% mutate(across(everythi
 #pca_data <- d %>% select(14:31) %>% mutate(across(everything(),as.numeric))       # extract only risk assessments
 #pca_data <- d %>% select(6:8,37,42,44,45,50,52) %>% mutate(across(everything(),as.numeric))      # extract all prepared columns other than risk assessments
 pca_data <- as.data.frame(pca_data)       # convert to dataframe from tibble
-rownames(pca_data) <- d$Abbreviation      # assign site abbreviations to rownames for later display in PCA
+rownames(pca_data) <- d$Code      # assign site codes to rownames for later display in PCA
 
 # Run PCA with scaling
 res.pca <- PCA(pca_data, scale.unit = TRUE, graph = FALSE)
